@@ -2,7 +2,7 @@
     "name": "@vertigis/workflow-form-elements-web",
     "private": true,
     "version": "0.0.0-semantically-released",
-    "description": "VertiGIS Studio Workflow Form elements for VertiGIS Studio Web",
+    "description": "VertiGIS Studio Workflow form elements for VertiGIS Studio Web",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/vertigis/workflow-form-elements-web.git"
@@ -30,7 +30,7 @@
         "conventional-changelog-conventionalcommits": "^5.0.0",
         "eslint-plugin-prettier": "^4.2.1",
         "prettier": "^2.7.1",
-        "typescript": "^4.0.2"
+        "typescript": "^4.7.4"
     },
     "browserslist": [
         "last 2 chrome versions",
