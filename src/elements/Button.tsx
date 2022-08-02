@@ -16,9 +16,9 @@ interface ButtonElementProps extends FormElementProps<ButtonProps["value"]>, Set
 }
 
 /**
- * A Workflow element built using React.
+ * A button form element.
  * @displayName Button
- * @description foo
+ * @description A button form element.
  * @param props The props that will be provided by the Workflow runtime.
  */
 function ButtonElement(props: ButtonElementProps): React.ReactElement {
