@@ -1,5 +1,6 @@
 // Activities will be re-exported from this file.
 export { default as AlertElementRegistration } from "./elements/Alert";
+export { default as AvatarElementRegistration } from "./elements/Avatar";
 export { default as ButtonElementRegistration } from "./elements/Button";
 export { default as ChipElementRegistration } from "./elements/Chip";
 export { default as CheckboxListElementRegistration } from "./elements/CheckboxList";

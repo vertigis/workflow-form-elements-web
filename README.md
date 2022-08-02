@@ -6,6 +6,7 @@ This activity pack wraps specific React components from [@vertigis/web](https://
 
 The following React components/form elements are supported:
 - `Alert`
+- `Avatar`
 - `Button`
 - `CheckboxList`
 - `Chip`
