@@ -37,6 +37,10 @@ interface ListElementProps
         SettableListProps {
     enableDelete?: boolean;
     items: ListElementItem[];
+    onClick?: (item: ListElementItem) => void;
+    onDelete?: (item: ListElementItem) => void;
+    onMouseEnter?: (item: ListElementItem) => void;
+    onMouseLeave?: (item: ListElementItem) => void;
 }
 
 /**
@@ -52,6 +56,10 @@ function ListElement(props: ListElementProps): React.ReactElement {
         items = [],
         maxHeight,
         maxWidth,
+        onClick,
+        onDelete,
+        onMouseEnter,
+        onMouseLeave,
         raiseEvent,
         setProperty,
         setValue,
@@ -62,6 +70,7 @@ function ListElement(props: ListElementProps): React.ReactElement {
     const handleItemClick = (event: React.MouseEvent<HTMLElement>, item: any) => {
         setValue(item);
         raiseEvent("clicked" as any, item);
+        onClick?.(item);
     };
 
     const handleDeleteClick = (event: React.MouseEvent<HTMLButtonElement>, item: any) => {
@@ -73,10 +82,21 @@ function ListElement(props: ListElementProps): React.ReactElement {
             setValue(undefined);
         }
         raiseEvent("custom", { eventType: "delete", item });
+        onDelete?.(item);
     };
 
     const handleSecondaryActionClick = (event: React.MouseEvent<HTMLButtonElement>, item: any) => {
         raiseEvent("custom", { eventType: "secondaryAction", item });
+    };
+
+    const handleMouseEnter = (event: React.MouseEvent<HTMLLIElement>, item: any) => {
+        raiseEvent("custom", { eventType: "mouseEnter", item });
+        onMouseEnter?.(item);
+    };
+
+    const handleMouseLeave = (event: React.MouseEvent<HTMLLIElement>, item: any) => {
+        raiseEvent("custom", { eventType: "mouseLeave", item });
+        onMouseLeave?.(item);
     };
 
     return (
@@ -97,6 +117,8 @@ function ListElement(props: ListElementProps): React.ReactElement {
                         disablePadding
                         divider={item.divider}
                         key={index}
+                        onMouseEnter={(event) => handleMouseEnter(event, item)}
+                        onMouseLeave={(event) => handleMouseLeave(event, item)}
                         secondaryAction={
                             <>
                                 {item.secondaryIcon && (

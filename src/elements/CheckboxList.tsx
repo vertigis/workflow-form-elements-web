@@ -38,6 +38,10 @@ interface CheckboxListElementProps
         SettableListProps {
     enableDelete?: boolean;
     items: ListElementItem[];
+    onClick?: (item: ListElementItem) => void;
+    onDelete?: (item: ListElementItem) => void;
+    onMouseEnter?: (item: ListElementItem) => void;
+    onMouseLeave?: (item: ListElementItem) => void;
 }
 
 /**
@@ -53,6 +57,10 @@ function CheckboxListElement(props: CheckboxListElementProps): React.ReactElemen
         items = [],
         maxHeight,
         maxWidth,
+        onClick,
+        onDelete,
+        onMouseEnter,
+        onMouseLeave,
         raiseEvent,
         setProperty,
         setValue,
@@ -67,6 +75,7 @@ function CheckboxListElement(props: CheckboxListElementProps): React.ReactElemen
             setValue([...value, item]);
         }
         raiseEvent("clicked" as any, item);
+        onClick?.(item);
     };
 
     const handleDeleteClick = (event: React.MouseEvent<HTMLButtonElement>, item: any) => {
@@ -78,10 +87,21 @@ function CheckboxListElement(props: CheckboxListElementProps): React.ReactElemen
             setValue(value.filter((x) => x !== item));
         }
         raiseEvent("custom", { eventType: "delete", item });
+        onDelete?.(item);
     };
 
     const handleSecondaryActionClick = (event: React.MouseEvent<HTMLButtonElement>, item: any) => {
         raiseEvent("custom", { eventType: "secondaryAction", item });
+    };
+
+    const handleMouseEnter = (event: React.MouseEvent<HTMLLIElement>, item: any) => {
+        raiseEvent("custom", { eventType: "mouseEnter", item });
+        onMouseEnter?.(item);
+    };
+
+    const handleMouseLeave = (event: React.MouseEvent<HTMLLIElement>, item: any) => {
+        raiseEvent("custom", { eventType: "mouseLeave", item });
+        onMouseLeave?.(item);
     };
 
     const handleKeyDown = (event: React.KeyboardEvent) => {
@@ -115,6 +135,8 @@ function CheckboxListElement(props: CheckboxListElementProps): React.ReactElemen
                         disablePadding
                         divider={item.divider}
                         key={index}
+                        onMouseEnter={(event) => handleMouseEnter(event, item)}
+                        onMouseLeave={(event) => handleMouseLeave(event, item)}
                         secondaryAction={
                             <>
                                 {item.secondaryIcon && (
