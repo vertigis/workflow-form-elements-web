@@ -13,5 +13,6 @@ export { default as ListElementRegistration } from "./elements/List";
 export { default as PaginationElementRegistration } from "./elements/Pagination";
 export { default as SliderElementRegistration } from "./elements/Slider";
 export { default as SwitchElementRegistration } from "./elements/Switch";
+export { default as TabsElementRegistration } from "./elements/Tabs";
 export { default as ToggleButtonElementRegistration } from "./elements/ToggleButton";
 export { default as TypographyElementRegistration } from "./elements/Typography";

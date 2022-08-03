@@ -1,3 +1,6 @@
+[![CI/CD](https://github.com/vertigis/workflow-form-elements-web/workflows/CI/CD/badge.svg)](https://github.com/vertigis/workflow-form-elements-web/actions)
+[![npm](https://img.shields.io/npm/v/@vertigis/workflow-form-elements-web)](https://www.npmjs.com/package/@vertigis/workflow-form-elements-web)
+
 This project contains [VertiGIS Studio Workflow](https://vertigisstudio.com/products/vertigis-studio-workflow/) form elements for use in [VertiGIS Studio Web](https://vertigisstudio.com/products/vertigis-studio-web/).
 
 VertiGIS Studio Web is built using React components from the [@vertigis/web](https://www.npmjs.com/package/@vertigis/web) package. Those components are internally built using React components from the [@mui/material](https://www.npmjs.com/package/@mui/material) package.
@@ -19,6 +22,7 @@ The following React components/form elements are supported:
 - `Pagination`
 - `Slider`
 - `Switch`
+- `Tabs`
 - `ToggleButton`
 - `Typography`
 
