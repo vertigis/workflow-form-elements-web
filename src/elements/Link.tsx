@@ -35,9 +35,9 @@ function LinkElement(props: LinkElementProps): React.ReactElement {
     );
 }
 
-const LinkElementElementRegistration: FormElementRegistration<LinkElementProps> = {
+const LinkElementRegistration: FormElementRegistration<LinkElementProps> = {
     component: LinkElement,
     id: "Link",
 };
 
-export default LinkElementElementRegistration;
+export default LinkElementRegistration;
