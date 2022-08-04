@@ -23,6 +23,7 @@ The following React components/form elements are supported:
 - `Slider`
 - `Switch`
 - `Tabs`
+- `Table`
 - `ToggleButton`
 - `Typography`
 
