@@ -20,7 +20,10 @@ type RowData = Record<string, any>;
 type SettableBoxProps = Pick<BoxProps, "maxHeight" | "maxWidth">;
 type SettableTableProps = Pick<TableProps, "size" | "stickyHeader">;
 
-interface TableElementProps extends FormElementProps<RowData[]>, SettableBoxProps, SettableTableProps {
+interface TableElementProps
+    extends FormElementProps<RowData[]>,
+        SettableBoxProps,
+        SettableTableProps {
     cols: Column[];
     onClick?: (row: RowData) => void;
     onMouseEnter?: (row: RowData) => void;
@@ -49,7 +52,7 @@ function TableElement(props: TableElementProps): React.ReactElement | null {
         size,
         selectable,
         stickyHeader,
-        value
+        value,
     } = props;
 
     const handleSelectAllClick = (event: React.ChangeEvent, checked: boolean) => {
@@ -102,7 +105,9 @@ function TableElement(props: TableElementProps): React.ReactElement | null {
                             </TableCell>
                         )}
                         {cols.map((col) => (
-                            <TableCell align={col.align} key={col.name}>{col.alias ?? col.name}</TableCell>
+                            <TableCell align={col.align} key={col.name}>
+                                {col.alias ?? col.name}
+                            </TableCell>
                         ))}
                     </TableRow>
                 </TableHead>
@@ -125,9 +130,13 @@ function TableElement(props: TableElementProps): React.ReactElement | null {
                                 )}
                                 {cols.map((col, index) => {
                                     const value = row[col.name];
-                                    const formattedValue = col.format ? col.format(value, row) : value;
+                                    const formattedValue = col.format
+                                        ? col.format(value, row)
+                                        : value;
                                     return (
-                                        <TableCell align={col.align} key={index}>{formattedValue}</TableCell>
+                                        <TableCell align={col.align} key={index}>
+                                            {formattedValue}
+                                        </TableCell>
                                     );
                                 })}
                             </TableRow>
