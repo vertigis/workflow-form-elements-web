@@ -10,6 +10,8 @@ type SettableLinkProps = Pick<
 interface LinkElementProps extends FormElementProps, SettableLinkProps {
     text: string;
     tooltip?: string;
+    onClick?: () => void;
+    component?: any;
 }
 
 /**
@@ -19,7 +21,24 @@ interface LinkElementProps extends FormElementProps, SettableLinkProps {
  * @param props The props that will be provided by the Workflow runtime.
  */
 function LinkElement(props: LinkElementProps): React.ReactElement {
-    const { href, showExternalLinkIcon, target, text, tooltip, underline, variant } = props;
+    const {
+        href,
+        showExternalLinkIcon,
+        target,
+        text,
+        tooltip,
+        underline,
+        variant,
+        raiseEvent,
+        onClick,
+        component,
+    } = props;
+
+    const handleClick = () => {
+        raiseEvent("clicked" as any, undefined);
+        onClick?.();
+    };
+
     return (
         <Link
             href={href}
@@ -29,6 +48,8 @@ function LinkElement(props: LinkElementProps): React.ReactElement {
             title={tooltip}
             underline={underline}
             variant={variant}
+            onClick={handleClick}
+            component={component}
         >
             {text}
         </Link>
