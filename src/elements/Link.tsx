@@ -34,7 +34,7 @@ function LinkElement(props: LinkElementProps): React.ReactElement {
         component,
     } = props;
 
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    const handleClick = () => {
         raiseEvent("clicked" as any, undefined);
         onClick?.();
     };
@@ -48,7 +48,7 @@ function LinkElement(props: LinkElementProps): React.ReactElement {
             title={tooltip}
             underline={underline}
             variant={variant}
-            onClick={(event) => handleClick(event)}
+            onClick={handleClick}
             component={component}
         >
             {text}
