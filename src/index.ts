@@ -18,3 +18,4 @@ export { default as TableElementRegistration } from "./elements/Table";
 export { default as TabsElementRegistration } from "./elements/Tabs";
 export { default as ToggleButtonElementRegistration } from "./elements/ToggleButton";
 export { default as TypographyElementRegistration } from "./elements/Typography";
+export { default as TreeElementRegistration } from "./elements/Tree";

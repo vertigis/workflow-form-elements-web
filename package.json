@@ -24,8 +24,8 @@
     },
     "devDependencies": {
         "@geocortex/workflow": "5.28.1",
-        "@vertigis/workflow-sdk": "2.0.5",
         "@vertigis/web": "5.18.0",
+        "@vertigis/workflow-sdk": "2.0.5",
         "conventional-changelog-conventionalcommits": "^5.0.0",
         "eslint-plugin-prettier": "^4.2.1",
         "prettier": "^2.7.1",
@@ -36,5 +36,8 @@
         "last 2 edge versions",
         "last 2 firefox versions",
         "last 2 safari versions"
-    ]
+    ],
+    "dependencies": {
+        "react-fontawesome": "^1.7.1"
+    }
 }
