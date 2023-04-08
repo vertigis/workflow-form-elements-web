@@ -1,7 +1,7 @@
 import * as React from "react";
 import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
 import List, { ListProps } from "@vertigis/web/ui/List";
-import ListItem, { ListItemProps } from "@vertigis/web/ui/ListItem";
+import ListItem from "@vertigis/web/ui/ListItem";
 import ListItemIcon from "@vertigis/web/ui/ListItemIcon";
 import { ListItemTextProps } from "@vertigis/web/ui/ListItemText";
 import { IconButtonProps } from "@vertigis/web/ui/IconButton";
@@ -64,9 +64,9 @@ interface TreeElementProps
     onMouseLeave?: (node: TreeElementNode) => void;
 }
 
-function filterTree(members) {
+function filterTree(nodes: TreeElementNode[]): TreeElementNode[] {
     let children = [] as any[];
-    const flattenMembers = members.map((m) => {
+    const flattenMembers = nodes.map((m) => {
         if (m.children && m.children.length) {
             children = [...children, ...m.children];
         }
@@ -76,10 +76,10 @@ function filterTree(members) {
     return flattenMembers.concat(children.length ? filterTree(children) : children);
 }
 
-function recursiveSearch(root, key) {
+function recursiveSearch(root: TreeElementNode[], key: string): TreeElementNode | undefined {
     let node;
 
-    root.some(function (n) {
+    root.some((n) => {
         if (n.key === key) {
             return (node = n);
         }
@@ -87,7 +87,7 @@ function recursiveSearch(root, key) {
             return (node = recursiveSearch(n.children, key));
         }
     });
-    return node;
+    return node as TreeElementNode;
 }
 
 function renderChild(
@@ -257,11 +257,11 @@ function TreeElement(props: TreeElementProps): React.ReactElement {
         }
     };
 
-    const findParent = (key) => {
+    const findParent = (key: string) => {
         return recursiveSearch(items, key);
     };
 
-    const isRootFolder = (key) => {
+    const isRootFolder = (key: string) => {
         return items.some((x) => x.key === key);
     };
     const [toggle, setToggle] = React.useState(false);
