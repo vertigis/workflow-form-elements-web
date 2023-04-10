@@ -25,9 +25,26 @@ const IconButtonStyleOverrides: IconButtonProps["sx"] = {
     },
 };
 
+const ListStyleOverrides: ListProps["sx"] = {
+    // Hack required to override .gcx-forms.defaults
+    marginTop: "0 !important",
+    ["& ul"]: {
+        margin: "(0, 0, 0) !important",
+    },
+};
+
+const BoxStyleOverrides: BoxProps["sx"] = {
+    // Hack required to override .gcx-forms.defaults
+    marginTop: "0 !important",
+    ["& ul"]: {
+        margin: "(0, 0, 0) !important",
+    },
+};
+
 const CheckBoxStyleOverrides: CheckboxProps["sx"] = {
     marginRight: "0 !important",
     paddingRight: "0 !important",
+    paddingLeft: "20px !important",
     minWidth: "0 !important",
 
     // Hack required to match disabled list Node content
@@ -43,11 +60,11 @@ type SettableTreeProps = Pick<ListProps, "dense" | "subheader">;
 interface TreeElementNode {
     key: string;
     open: boolean;
+    primary: ListItemTextProps["primary"];
     link?: string;
     icon?: DynamicIconProps["src"];
     checked?: boolean;
     tooltip?: string;
-    primary: ListItemTextProps["primary"];
     children?: TreeElementNode[];
 }
 interface TreeElementProps
@@ -76,20 +93,6 @@ function filterTree(nodes: TreeElementNode[]): TreeElementNode[] {
     return flattenMembers.concat(children.length ? filterTree(children) : children);
 }
 
-function recursiveSearch(root: TreeElementNode[], key: string): TreeElementNode | undefined {
-    let node;
-
-    root.some((n) => {
-        if (n.key === key) {
-            return (node = n);
-        }
-        if (n.children) {
-            return (node = recursiveSearch(n.children, key));
-        }
-    });
-    return node as TreeElementNode;
-}
-
 function renderChild(
     node: TreeElementNode,
     index: number,
@@ -99,19 +102,15 @@ function renderChild(
     handleMouseEnter: any,
     handleMouseLeave: any,
     handleItemClick: any,
-    handleKeyDown: any,
-    findParent: any,
-    isRootFolder: any
+    handleKeyDown: any
 ): JSX.Element {
-    const isInRoot = isRootFolder(node.key);
-    const parent = findParent(node.key);
-    const isSubFolder = !isInRoot && node.children && parent != undefined;
-    const isNode = !isInRoot && !node.children && parent != undefined;
+    const isFolder = node.children;
+    const isNode = !node.children;
     const m = 20 * level;
     return (
         <React.Fragment>
             <ListItem
-                sx={isSubFolder || isNode ? { marginLeft: `${m}px !important` } : undefined}
+                sx={isFolder || isNode ? { marginLeft: `${m}px !important` } : undefined}
                 disablePadding
                 key={index}
                 onMouseEnter={(event) => handleMouseEnter(event, node)}
@@ -142,13 +141,9 @@ function renderChild(
                     ></Typography>
                 </Button>
             </ListItem>
-            {(isSubFolder || isInRoot) && node.children && (
+            {isFolder && node.children && (
                 <Collapse in={node.open}>
-                    <List
-                        sx={{
-                            marginTop: "0 !important",
-                        }}
-                    >
+                    <List sx={ListStyleOverrides}>
                         {renderList(
                             node.children,
                             value,
@@ -157,9 +152,7 @@ function renderChild(
                             handleMouseEnter,
                             handleMouseLeave,
                             handleItemClick,
-                            handleKeyDown,
-                            findParent,
-                            isRootFolder
+                            handleKeyDown
                         )}
                     </List>
                 </Collapse>
@@ -176,9 +169,7 @@ function renderList(
     handleMouseEnter: any,
     handleMouseLeave: any,
     handleItemClick: any,
-    handleKeyDown: any,
-    findParent: any,
-    isRootFolder: any
+    handleKeyDown: any
 ): JSX.Element[] {
     const listItems: JSX.Element[] = [];
     nodes.forEach((node, index) => {
@@ -192,9 +183,7 @@ function renderList(
                 handleMouseEnter,
                 handleMouseLeave,
                 handleItemClick,
-                handleKeyDown,
-                findParent,
-                isRootFolder
+                handleKeyDown
             )
         );
     });
@@ -257,37 +246,11 @@ function TreeElement(props: TreeElementProps): React.ReactElement {
         }
     };
 
-    const findParent = (key: string) => {
-        return recursiveSearch(items, key);
-    };
-
-    const isRootFolder = (key: string) => {
-        return items.some((x) => x.key === key);
-    };
     const [toggle, setToggle] = React.useState(false);
 
     return (
-        <Box
-            maxHeight={maxHeight}
-            maxWidth={maxWidth}
-            sx={{
-                margin: "0 !important",
-                overflowY: "auto",
-                // Hack required to override .gcx-forms.defaults
-                ["& button"]: {
-                    marginRight: "0 !important",
-                },
-            }}
-        >
-            <List
-                sx={{
-                    ["& ul"]: {
-                        margin: "(0, 0, 0) !important",
-                    },
-                }}
-                dense={dense}
-                subheader={subheader}
-            >
+        <Box maxHeight={maxHeight} maxWidth={maxWidth} sx={BoxStyleOverrides}>
+            <List sx={ListStyleOverrides} dense={dense} subheader={subheader}>
                 {renderList(
                     items,
                     value,
@@ -296,9 +259,7 @@ function TreeElement(props: TreeElementProps): React.ReactElement {
                     handleMouseEnter,
                     handleMouseLeave,
                     handleItemClick,
-                    handleKeyDown,
-                    findParent,
-                    isRootFolder
+                    handleKeyDown
                 )}
             </List>
         </Box>
