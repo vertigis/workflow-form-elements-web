@@ -36,8 +36,5 @@
         "last 2 edge versions",
         "last 2 firefox versions",
         "last 2 safari versions"
-    ],
-    "dependencies": {
-        "react-fontawesome": "^1.7.1"
-    }
+    ]
 }
