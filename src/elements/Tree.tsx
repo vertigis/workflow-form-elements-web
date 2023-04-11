@@ -13,39 +13,44 @@ import Typography from "@vertigis/web/ui/Typography";
 import Checkbox, { CheckboxProps } from "@vertigis/web/ui/Checkbox";
 
 /**
- * Properties for the `List` component.
+ * Properties for the `Tree` component.
  */
+export declare type TreeViewProps = {
+    showCheckBoxes?: boolean;
+};
 
 const IconButtonStyleOverrides: IconButtonProps["sx"] = {
     // Hack required to override .gcx-forms.defaults
-    paddingLeft: "0 !important",
+    paddingLeft: "0rem !important",
+    marginRight: "0rem !important",
     // Hack required to match disabled list Node content
     "&.Mui-disabled": {
         opacity: 0.38,
     },
 };
 
-const ListStyleOverrides: ListProps["sx"] = {
+const NoCheckIconButtonStyleOverrides: IconButtonProps["sx"] = {
     // Hack required to override .gcx-forms.defaults
-    marginTop: "0 !important",
-    ["& ul"]: {
-        margin: "(0, 0, 0) !important",
+    paddingLeft: "3rem !important",
+    // Hack required to match disabled list Node content
+    "&.Mui-disabled": {
+        opacity: 0.38,
     },
 };
 
-const BoxStyleOverrides: BoxProps["sx"] = {
+const TreeStyleOverrides: BoxProps["sx"] = {
     // Hack required to override .gcx-forms.defaults
     marginTop: "0 !important",
     ["& ul"]: {
-        margin: "(0, 0, 0) !important",
+        margin: "(0rem, 0rem, 0rem) !important",
     },
 };
 
 const CheckBoxStyleOverrides: CheckboxProps["sx"] = {
-    marginRight: "0 !important",
-    paddingRight: "0 !important",
-    paddingLeft: "20px !important",
-    minWidth: "0 !important",
+    marginRight: "0rem !important",
+    paddingRight: "0rem !important",
+    paddingLeft: "1.0rem !important",
+    minWidth: "0rem !important",
 
     // Hack required to match disabled list Node content
     "&.Mui-disabled": {
@@ -56,6 +61,8 @@ const CheckBoxStyleOverrides: CheckboxProps["sx"] = {
 type SettableBoxProps = Pick<BoxProps, "maxHeight" | "maxWidth">;
 
 type SettableTreeProps = Pick<ListProps, "dense" | "subheader">;
+
+type SettableCheckBoxProps = Pick<TreeViewProps, "showCheckBoxes">;
 
 interface TreeElementNode {
     key: string;
@@ -68,22 +75,19 @@ interface TreeElementNode {
     children?: TreeElementNode[];
 }
 interface TreeElementProps
-    extends FormElementProps<TreeElementNode | undefined>,
+    extends FormElementProps<TreeElementNode[] | undefined>,
         SettableBoxProps,
-        SettableTreeProps {
-    enableDelete?: boolean;
+        SettableTreeProps,
+        SettableCheckBoxProps {
     items: TreeElementNode[];
-    value: any;
-    showCheckBoxes: boolean;
     onClick?: (node: TreeElementNode) => void;
-    onDelete?: (node: TreeElementNode) => void;
     onMouseEnter?: (node: TreeElementNode) => void;
     onMouseLeave?: (node: TreeElementNode) => void;
 }
 
 function filterTree(nodes: TreeElementNode[]): TreeElementNode[] {
-    let children = [] as any[];
-    const flattenMembers = nodes.map((m) => {
+    let children: TreeElementNode[] = [];
+    const flattenMembers = nodes.map((m: TreeElementNode) => {
         if (m.children && m.children.length) {
             children = [...children, ...m.children];
         }
@@ -96,30 +100,38 @@ function filterTree(nodes: TreeElementNode[]): TreeElementNode[] {
 function renderChild(
     node: TreeElementNode,
     index: number,
-    value: TreeElementNode[],
-    showCheckBoxes: boolean,
+    value: TreeElementNode[] | undefined,
+    showCheckBoxes: boolean | undefined,
     level: number,
-    handleMouseEnter: any,
-    handleMouseLeave: any,
-    handleItemClick: any,
-    handleKeyDown: any
+    handleMouseEnter: (event: React.MouseEvent<HTMLLIElement, MouseEvent>, node: any) => void,
+    handleMouseLeave: (event: React.MouseEvent<HTMLLIElement, MouseEvent>, node: any) => void,
+    handleItemClick: (node: any) => void,
+    handleKeyDown: (event: React.KeyboardEvent, node: any) => void
 ): JSX.Element {
-    const isFolder = node.children;
+    const isFolder = Array.isArray(node.children);
     const isNode = !node.children;
-    const m = 20 * level;
+    const m = 1.2 * level;
     return (
         <React.Fragment>
             <ListItem
-                sx={isFolder || isNode ? { marginLeft: `${m}px !important` } : undefined}
+                sx={
+                    isFolder || isNode
+                        ? { marginLeft: `${m}rem !important`, marginRight: "0rem !important" }
+                        : undefined
+                }
                 disablePadding
                 key={index}
                 onMouseEnter={(event) => handleMouseEnter(event, node)}
                 onMouseLeave={(event) => handleMouseLeave(event, node)}
-                onClick={(event) => handleItemClick(event, node)}
+                onClick={() => handleItemClick(node)}
                 onKeyDown={isNode ? (event) => handleKeyDown(event, node) : undefined}
             >
                 {isNode && showCheckBoxes && (
-                    <ListItemIcon>
+                    <ListItemIcon
+                        sx={{
+                            marginRight: "0rem !important",
+                        }}
+                    >
                         <Checkbox
                             sx={CheckBoxStyleOverrides}
                             edge="start"
@@ -130,7 +142,7 @@ function renderChild(
                     </ListItemIcon>
                 )}
                 <Button
-                    sx={isNode ? IconButtonStyleOverrides : undefined}
+                    sx={showCheckBoxes ? IconButtonStyleOverrides : NoCheckIconButtonStyleOverrides}
                     variant="text"
                     href={node.link && node.link}
                     startIcon={node.icon && <DynamicIcon src={node.icon} />}
@@ -143,7 +155,7 @@ function renderChild(
             </ListItem>
             {isFolder && node.children && (
                 <Collapse in={node.open}>
-                    <List sx={ListStyleOverrides}>
+                    <List sx={TreeStyleOverrides}>
                         {renderList(
                             node.children,
                             value,
@@ -163,13 +175,13 @@ function renderChild(
 
 function renderList(
     nodes: TreeElementNode[],
-    value: TreeElementNode[],
-    showCheckBoxes: boolean,
+    value: TreeElementNode[] | undefined,
+    showCheckBoxes: boolean | undefined,
     level: number,
-    handleMouseEnter: any,
-    handleMouseLeave: any,
-    handleItemClick: any,
-    handleKeyDown: any
+    handleMouseEnter: (event: React.MouseEvent<HTMLLIElement, MouseEvent>, node: any) => void,
+    handleMouseLeave: (event: React.MouseEvent<HTMLLIElement, MouseEvent>, node: any) => void,
+    handleItemClick: (node: any) => void,
+    handleKeyDown: (event: React.KeyboardEvent, node: any) => void
 ): JSX.Element[] {
     const listItems: JSX.Element[] = [];
     nodes.forEach((node, index) => {
@@ -191,6 +203,12 @@ function renderList(
     return listItems;
 }
 
+/**
+ * A tree view form element.
+ * @displayName Tree
+ * @description A tree view form element.
+ * @param props The props that will be provided by the Workflow runtime.
+ */
 function TreeElement(props: TreeElementProps): React.ReactElement {
     const {
         dense,
@@ -207,24 +225,26 @@ function TreeElement(props: TreeElementProps): React.ReactElement {
         setValue,
     } = props;
 
-    const handleMouseEnter = (event: React.MouseEvent<HTMLLIElement>, item: any) => {
-        raiseEvent("custom", { eventType: "mouseEnter", item });
-        onMouseEnter?.(item);
+    const handleMouseEnter = (event: React.MouseEvent<HTMLLIElement>, node: TreeElementNode) => {
+        raiseEvent("custom", { eventType: event.type, node });
+        onMouseEnter?.(node);
     };
 
-    const handleMouseLeave = (event: React.MouseEvent<HTMLLIElement>, item: any) => {
-        raiseEvent("custom", { eventType: "mouseLeave", item });
-        onMouseLeave?.(item);
+    const handleMouseLeave = (event: React.MouseEvent<HTMLLIElement>, node: TreeElementNode) => {
+        raiseEvent("custom", { eventType: event.type, node });
+        onMouseLeave?.(node);
     };
 
-    const handleItemClick = (event: React.MouseEvent<HTMLElement>, node: TreeElementNode) => {
+    const handleItemClick = (node: TreeElementNode) => {
         if (node.children && node.children.length > 0) {
             node.open = !node.open;
             setToggle(!toggle);
-        } else {
+        } else if (showCheckBoxes) {
             node.checked = !node.checked;
             const filtered = filterTree(items);
             setValue(filtered?.filter((x) => x.checked));
+        } else {
+            setValue([node]);
         }
 
         raiseEvent("clicked" as any, node);
@@ -249,8 +269,8 @@ function TreeElement(props: TreeElementProps): React.ReactElement {
     const [toggle, setToggle] = React.useState(false);
 
     return (
-        <Box maxHeight={maxHeight} maxWidth={maxWidth} sx={BoxStyleOverrides}>
-            <List sx={ListStyleOverrides} dense={dense} subheader={subheader}>
+        <Box maxHeight={maxHeight} maxWidth={maxWidth} sx={TreeStyleOverrides}>
+            <List sx={TreeStyleOverrides} dense={dense} subheader={subheader}>
                 {renderList(
                     items,
                     value,
