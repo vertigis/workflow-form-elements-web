@@ -48,9 +48,9 @@ interface TreeElementNode {
 }
 interface TreeElementProps
     extends FormElementProps<TreeElementNode[] | undefined>,
-    SettableBoxProps,
-    SettableTreeProps,
-    SettableCheckBoxProps {
+        SettableBoxProps,
+        SettableTreeProps,
+        SettableCheckBoxProps {
     items: TreeElementNode[];
     onClick?: (node: TreeElementNode) => void;
     onMouseEnter?: (node: TreeElementNode) => void;
