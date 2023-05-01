@@ -86,7 +86,10 @@ function renderChild(
             }}
         />
     );
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const TreeCheckbox = (props: CheckboxProps) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [isChecked, setIsChecked] = React.useState(node.checked);
 
         return (
