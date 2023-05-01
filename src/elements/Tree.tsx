@@ -1,6 +1,6 @@
 import * as React from "react";
 import Box from "@vertigis/web/ui/Box";
-import Checkbox from "@vertigis/web/ui/Checkbox";
+import Checkbox, { CheckboxProps } from "@vertigis/web/ui/Checkbox";
 import ChevronDownIcon from "@vertigis/web/ui/icons/ChevronDown";
 import Collapse from "@vertigis/web/ui/Collapse";
 import DynamicIcon, { DynamicIconProps } from "@vertigis/web/ui/DynamicIcon";
@@ -20,27 +20,16 @@ const IconButtonStyleOverrides: IconButtonProps["sx"] = {
     },
 };
 
-/**
- * Properties for the `Tree` component.
- */
-export declare type TreeViewProps = {
-    showCheckBoxes?: boolean;
-};
-type SettableCheckBoxProps = Pick<TreeViewProps, "showCheckBoxes">;
-
 interface TreeElementNode {
-    open: boolean;
     primary: string;
+    open?: boolean;
     secondary?: string;
-    link?: string;
     icon?: DynamicIconProps["src"];
     checked?: boolean;
     children?: TreeElementNode[];
     disabled?: boolean;
 }
-interface TreeElementProps
-    extends FormElementProps<TreeElementNode[] | undefined>,
-        SettableCheckBoxProps {
+interface TreeElementProps extends FormElementProps<TreeElementNode[] | undefined> {
     items: TreeElementNode[];
     onClick?: (node: TreeElementNode) => void;
     onSecondaryClick?: (node: TreeElementNode) => void;
@@ -77,14 +66,13 @@ function filterTree(nodes: TreeElementNode[]) {
 function renderChild(
     node: TreeElementNode,
     value: TreeElementNode[] | undefined,
-    showCheckBoxes: boolean | undefined,
+    showCheckboxes: boolean | undefined,
     level: number,
     dense: boolean | undefined,
     handleMouseEnter: (event: React.MouseEvent, node: TreeElementNode) => void,
     handleMouseLeave: (event: React.MouseEvent, node: TreeElementNode) => void,
     handleItemClick: (node: TreeElementNode) => void,
-    handleFolderClick: (node: TreeElementNode) => void,
-    handleSecondaryActionClick: (event: React.MouseEvent, node: TreeElementNode) => void
+    handleFolderClick: (node: TreeElementNode) => void
 ) {
     const isFolder = Array.isArray(node.children);
     const isNode = !node.children;
@@ -98,29 +86,46 @@ function renderChild(
             }}
         />
     );
+    const TreeCheckbox = (props: CheckboxProps) => {
+        const [isChecked, setIsChecked] = React.useState(node.checked);
+
+        return (
+            <Checkbox
+                onClick={() => {
+                    setIsChecked(node.checked);
+                }}
+                checked={node.checked}
+                onChange={(event) => {
+                    setIsChecked(event.target.checked);
+                }}
+            />
+        );
+    };
     return (
         <React.Fragment>
             <ListItemButton
                 disabled={node.disabled}
-                sx={{ paddingLeft: (theme) => theme.spacing(m) }}
+                sx={{
+                    paddingLeft: (theme) => theme.spacing(m),
+                }}
                 onMouseEnter={(event) => handleMouseEnter(event, node)}
                 onMouseLeave={(event) => handleMouseLeave(event, node)}
+                onClick={() => handleItemClick(node)}
             >
                 <ListItemIcon sx={{ alignItems: "center", minWidth: 70 }}>
-                    {isNode && showCheckBoxes && (
-                        <Checkbox
-                            checked={node.checked}
-                            disableRipple
-                            onClick={() => handleItemClick(node)}
+                    {isNode && showCheckboxes && <TreeCheckbox tabIndex={-1} />}
+                    {node.icon && (
+                        <DynamicIcon
+                            src={node.icon}
+                            fontSize="small"
+                            sx={IconButtonStyleOverrides}
                         />
                     )}
-                    {node.icon && <DynamicIcon src={node.icon} fontSize="small" sx={{ ml: 1 }} />}
                 </ListItemIcon>
                 <ListItemText
                     sx={{ overflow: "hidden" }}
                     primary={node.primary}
                     secondary={node.secondary}
-                    onClick={(event) => handleSecondaryActionClick(event, node)}
                 />
                 {isFolder && node.children && (
                     <IconButton
@@ -137,14 +142,13 @@ function renderChild(
                         {renderList(
                             node.children,
                             value,
-                            showCheckBoxes,
+                            showCheckboxes,
                             level + 1,
                             dense,
                             handleMouseEnter,
                             handleMouseLeave,
                             handleItemClick,
-                            handleFolderClick,
-                            handleSecondaryActionClick
+                            handleFolderClick
                         )}
                     </List>
                 </Collapse>
@@ -156,14 +160,13 @@ function renderChild(
 function renderList(
     nodes: TreeElementNode[],
     value: TreeElementNode[] | undefined,
-    showCheckBoxes: boolean | undefined,
+    showCheckboxes: boolean | undefined,
     level: number,
     dense,
     handleMouseEnter: (event: React.MouseEvent, node: TreeElementNode) => void,
     handleMouseLeave: (event: React.MouseEvent, node: TreeElementNode) => void,
     handleItemClick: (node: any) => void,
-    handleFolderClick: (node: any) => void,
-    handleSecondaryActionClick: (event: React.MouseEvent, node: TreeElementNode) => void
+    handleFolderClick: (node: any) => void
 ) {
     const listItems: JSX.Element[] = [];
 
@@ -172,14 +175,13 @@ function renderList(
             renderChild(
                 node,
                 value,
-                showCheckBoxes,
+                showCheckboxes,
                 level,
                 dense,
                 handleMouseEnter,
                 handleMouseLeave,
                 handleItemClick,
-                handleFolderClick,
-                handleSecondaryActionClick
+                handleFolderClick
             )
         );
     });
@@ -199,21 +201,15 @@ function TreeElement(props: TreeElementProps): React.ReactElement {
         maxHeight,
         subheader,
         value,
-        showCheckBoxes,
+        showCheckboxes,
         dense,
         onClick,
-        onSecondaryClick,
         onMouseEnter,
         onMouseLeave,
         raiseEvent,
         setValue,
     } = props;
-    const [items, setItems] = React.useState([] as TreeElementNode[]);
-    React.useEffect(() => {
-        if (props?.items) {
-            setItems(props.items);
-        }
-    }, [props.items]);
+    const [items, setItems] = React.useState(props?.items);
 
     const handleMouseEnter = (event: React.MouseEvent, node: TreeElementNode) => {
         raiseEvent("custom", { eventType: "mouseEnter", node });
@@ -225,11 +221,6 @@ function TreeElement(props: TreeElementProps): React.ReactElement {
         onMouseLeave?.(node);
     };
 
-    const handleSecondaryActionClick = (event: React.MouseEvent, node: any) => {
-        raiseEvent("custom", { eventType: "secondaryAction", node });
-        onSecondaryClick?.(node);
-    };
-
     const handleFolderClick = (node: TreeElementNode) => {
         if (node.children && node.children.length > 0) {
             node.open = !node.open;
@@ -238,13 +229,13 @@ function TreeElement(props: TreeElementProps): React.ReactElement {
     };
 
     const handleItemClick = (node: TreeElementNode) => {
-        if (showCheckBoxes) {
+        if (showCheckboxes && !node.children) {
             node.checked = !node.checked;
             setValue(filterTree(items));
         } else {
             setValue([node]);
         }
-
+        setItems([...items]);
         raiseEvent("clicked" as any, node);
         onClick?.(node);
     };
@@ -265,14 +256,13 @@ function TreeElement(props: TreeElementProps): React.ReactElement {
                 {renderList(
                     items,
                     value,
-                    showCheckBoxes,
+                    showCheckboxes,
                     0,
                     dense,
                     handleMouseEnter,
                     handleMouseLeave,
                     handleItemClick,
-                    handleFolderClick,
-                    handleSecondaryActionClick
+                    handleFolderClick
                 )}
             </List>
         </Box>
