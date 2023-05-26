@@ -32,8 +32,8 @@ interface Column {
 
 interface EditableTableElementProps
     extends FormElementProps<Row[]>,
-    SettableBoxProps,
-    SettableTableProps {
+        SettableBoxProps,
+        SettableTableProps {
     cols: Column[];
     rows: Row[];
     editTooltip: string;
