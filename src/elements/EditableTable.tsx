@@ -23,6 +23,7 @@ interface Column {
         row: Row,
         column: Column
     ) => any;
+    props?: any;
     columnCalculation?: "sum" | "average" | ((values: any) => any);
     editable: boolean;
     type: "text" | "number" | "date" | "time" | string;
@@ -31,8 +32,8 @@ interface Column {
 
 interface EditableTableElementProps
     extends FormElementProps<Row[]>,
-        SettableBoxProps,
-        SettableTableProps {
+    SettableBoxProps,
+    SettableTableProps {
     cols: Column[];
     rows: Row[];
     editTooltip: string;
@@ -189,13 +190,6 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                 {cols.map((col, index) => {
                                     const value = row[col.name];
                                     const formattedValue = col.format ? col.format(value) : value;
-                                    const inputProps = {};
-                                    if (
-                                        (col.type === "checkbox" || col.type === "radio") &&
-                                        typeof value === "boolean"
-                                    ) {
-                                        inputProps["checked"] = value;
-                                    }
                                     return (
                                         <TableCell
                                             align={col.align}
@@ -211,12 +205,11 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                                 <Input
                                                     readOnly={false}
                                                     type={col.type}
-                                                    value={value}
-                                                    defaultValue={value}
+                                                    value={formattedValue}
                                                     onChange={(event) =>
                                                         handleCellChange(event, row, col)
                                                     }
-                                                    inputProps={inputProps}
+                                                    inputProps={col.props}
                                                 />
                                             ) : (
                                                 formattedValue
