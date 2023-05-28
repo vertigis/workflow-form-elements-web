@@ -10,55 +10,43 @@ import TableHead from "@vertigis/web/ui/TableHead";
 import TableRow from "@vertigis/web/ui/TableRow";
 
 type FooterRow = Record<string, any>;
-type Row = Record<string, any>;
+type RowData = Record<string, any>;
 type SettableBoxProps = Pick<BoxProps, "maxHeight" | "maxWidth">;
 type SettableTableProps = Pick<TableProps, "size" | "stickyHeader">;
 
 interface Column {
+    name: string;
     alias?: string;
     align?: TableCellProps["align"];
-    format?: (value: any) => any;
-    parse?: (
-        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-        row: Row,
-        column: Column
-    ) => any;
-    props?: any;
+    format?: (value: any, row: RowData) => any;
+    footerFormat?: (value: any, row: RowData) => any;
+    parse?: (value: any, row: RowData, column: Column) => any;
     columnCalculation?: "sum" | "average" | ((values: any) => any);
-    editable: boolean;
-    type: "text" | "number" | "date" | "time" | string;
-    name: string;
+    editable?: boolean;
+    type?: "text" | "number" | string;
 }
 
 interface EditableTableElementProps
-    extends FormElementProps<Row[]>,
+    extends FormElementProps<RowData[]>,
         SettableBoxProps,
         SettableTableProps {
     cols: Column[];
-    rows: Row[];
-    editTooltip: string;
-    saveTooltip: string;
+    rows: RowData[];
     footerLabel?: string;
-    onMouseEnter?: (row: Row) => void;
-    onMouseLeave?: (row: Row) => void;
-    rowCalculation?: (data: Row[], row: Row) => void;
+    onMouseEnter?: (row: RowData) => void;
+    onMouseLeave?: (row: RowData) => void;
+    rowCalculation?: (data: RowData[], row: RowData) => void;
 }
 
 //Mimic MUI header style for footer
 const TableCellStyleOverrides: TableCellProps["sx"] = {
     fontFamily: "var(--defaultFont)",
-    lineHeight: "2.4rem",
-    display: "table-cell",
-    verticalAlign: "inherit",
-    textAlign: "left",
-    overflowWrap: "break-word",
     backgroundColor: "var(--secondaryBackground)",
     fontWeight: "bold",
-    fontSize: "1.4rem",
     color: "var(--secondaryForeground)",
 };
 
-const calculateFooterRow = (cols: Column[], rows: Row[]): FooterRow => {
+const calculateFooterRow = (cols: Column[], rows: RowData[]): FooterRow => {
     const totalCols = cols.filter((x) => x.columnCalculation);
     const total: FooterRow = {};
     for (const col of totalCols) {
@@ -89,7 +77,7 @@ const calculateAverage = (values): number => {
 /**
  * A table form element.
  * @displayName Editable Table
- * @description A table form element that allows editing.
+ * @description A table form element that allows for inline editing and tabular calculation.
  * @param props The props that will be provided by the Workflow runtime.
  */
 function EditableTableElement(props: EditableTableElementProps): React.ReactElement | null {
@@ -100,7 +88,6 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
         maxWidth,
         onMouseEnter,
         onMouseLeave,
-        rowCalculation,
         raiseEvent,
         setValue,
         size,
@@ -113,50 +100,54 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
         setData(rows);
     }, [rows]);
 
-    const illegalCol = cols.some((x) => ["text", "number", "date", "time"].indexOf(x.type) == -1);
-    if (illegalCol) {
-        throw new Error("Unsupported column.  Column must be of type: text, number, date or time.");
+    const illegalCols = cols.filter(
+        (x) => !!x.type && ["text", "number", "date", "time", undefined].indexOf(x.type) === -1
+    );
+    if (illegalCols.length > 0) {
+        for (const illegalCol of illegalCols) {
+            const type = illegalCol.type as string;
+            console.log(
+                `Unsupported column type ${type} in column ${illegalCol.name}.  Supported types: text, number.`
+            );
+            illegalCol.type = undefined;
+        }
     }
     const includeFooter = cols.some((x) => x.columnCalculation);
     const footerRow: FooterRow = calculateFooterRow(cols, rows);
 
-    const handleMouseEnter = (event: React.MouseEvent, row: Row, column: string) => {
+    const handleMouseEnter = (event: React.MouseEvent, row: RowData) => {
         raiseEvent("custom", {
             eventType: "mouseEnter",
-            rowData: { rows: data, row: row, column: column },
+            rowData: { rows: data, row: row },
         });
         onMouseEnter?.(row);
     };
 
-    const handleMouseLeave = (event: React.MouseEvent, row: Row, column: string) => {
+    const handleMouseLeave = (event: React.MouseEvent, row: RowData) => {
         raiseEvent("custom", {
             eventType: "mouseLeave",
-            rowData: { rows: data, row: row, column: column },
+            rowData: { rows: data, row: row },
         });
         onMouseLeave?.(row);
     };
 
     const handleCellChange = (
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-        row: Row,
+        row: RowData,
         column: Column
     ) => {
         if (column?.parse) {
-            row[column.name] = column.parse(event, row, column);
-        } else if ((event.target as any).type === "number") {
+            row[column.name] = column.parse(event.target.value, row, column);
+        } else if (event.target.type === "number") {
             row[column.name] = Number(event.target.value);
         } else {
             row[column.name] = event.target.value;
-        }
-        if (rowCalculation) {
-            rowCalculation(data, row);
         }
         raiseEvent("custom", {
             eventType: "cellChange",
             rowData: { rows: data, row: row, column: column },
         });
         setData([...data]);
-        setValue(data);
     };
 
     return (
@@ -173,7 +164,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
             >
                 <TableHead>
                     <TableRow>
-                        {includeFooter && <TableCell />}
+                        {includeFooter && footerLabel && <TableCell />}
                         {cols.map((col) => (
                             <TableCell align={col.align} key={col.name}>
                                 {col.alias ?? col.name}
@@ -184,32 +175,29 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                 <TableBody>
                     {data.map((row, index) => {
                         return (
-                            <TableRow hover key={index}>
-                                {includeFooter && <TableCell />}
+                            <TableRow
+                                hover
+                                key={index}
+                                onMouseEnter={(event) => handleMouseEnter(event, row)}
+                                onMouseLeave={(event) => handleMouseLeave(event, row)}
+                            >
+                                {includeFooter && footerLabel && <TableCell />}
 
                                 {cols.map((col, index) => {
                                     const value = row[col.name];
-                                    const formattedValue = col.format ? col.format(value) : value;
+                                    const formattedValue = col.format
+                                        ? col.format(value, row)
+                                        : value;
                                     return (
-                                        <TableCell
-                                            align={col.align}
-                                            key={index}
-                                            onMouseEnter={(event) =>
-                                                handleMouseEnter(event, row, col.name)
-                                            }
-                                            onMouseLeave={(event) =>
-                                                handleMouseLeave(event, row, col.name)
-                                            }
-                                        >
+                                        <TableCell align={col.align} key={index}>
                                             {col.editable ? (
                                                 <Input
-                                                    readOnly={false}
+                                                    fullWidth={col.type === "text" ? true : false}
                                                     type={col.type}
                                                     value={formattedValue}
                                                     onChange={(event) =>
                                                         handleCellChange(event, row, col)
                                                     }
-                                                    inputProps={col.props}
                                                 />
                                             ) : (
                                                 formattedValue
@@ -221,7 +209,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                         );
                     })}
                 </TableBody>
-                {includeFooter && (
+                {includeFooter && footerLabel && (
                     <TableFooter>
                         <TableRow hover>
                             <TableCell align="center" sx={TableCellStyleOverrides}>
@@ -234,8 +222,10 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                         key={index}
                                         sx={TableCellStyleOverrides}
                                     >
-                                        {col.format
-                                            ? col.format(footerRow[col.name])
+                                        {col.footerFormat
+                                            ? col.footerFormat(footerRow[col.name], footerRow)
+                                            : col.format
+                                            ? col.format(footerRow[col.name], footerRow)
                                             : footerRow[col.name]}
                                     </TableCell>
                                 ) : (
