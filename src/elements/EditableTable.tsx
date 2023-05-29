@@ -28,8 +28,8 @@ interface Column {
 
 interface EditableTableElementProps
     extends FormElementProps<RowData[]>,
-    SettableBoxProps,
-    SettableTableProps {
+        SettableBoxProps,
+        SettableTableProps {
     cols: Column[];
     rows: RowData[];
     editIcon: string;
