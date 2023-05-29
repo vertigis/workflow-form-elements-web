@@ -8,6 +8,8 @@ import TableCell, { TableCellProps } from "@vertigis/web/ui/TableCell";
 import TableFooter from "@vertigis/web/ui/TableFooter";
 import TableHead from "@vertigis/web/ui/TableHead";
 import TableRow from "@vertigis/web/ui/TableRow";
+import IconButton, { IconButtonProps } from "@vertigis/web/ui/IconButton";
+import DynamicIcon from "@vertigis/web/ui/DynamicIcon";
 
 type FooterRow = Record<string, any>;
 type RowData = Record<string, any>;
@@ -18,24 +20,25 @@ interface Column {
     name: string;
     alias?: string;
     align?: TableCellProps["align"];
-    format?: (value: any, row: RowData) => any;
-    footerFormat?: (value: any, row: RowData) => any;
-    parse?: (value: any, row: RowData, column: Column) => any;
     columnCalculation?: "sum" | "average" | ((values: any) => any);
     editable?: boolean;
-    type?: "text" | "number" | string;
+    type?: "text" | "number";
+    step?: string;
 }
 
 interface EditableTableElementProps
     extends FormElementProps<RowData[]>,
-        SettableBoxProps,
-        SettableTableProps {
+    SettableBoxProps,
+    SettableTableProps {
     cols: Column[];
     rows: RowData[];
+    editIcon: string;
+    saveIcon: string;
+    cancelIcon: string;
     footerLabel?: string;
     onMouseEnter?: (row: RowData) => void;
     onMouseLeave?: (row: RowData) => void;
-    rowCalculation?: (data: RowData[], row: RowData) => void;
+    rowCalculation?: (value: string | number, row: RowData, column: Column) => RowData;
 }
 
 //Mimic MUI header style for footer
@@ -46,6 +49,14 @@ const TableCellStyleOverrides: TableCellProps["sx"] = {
     color: "var(--secondaryForeground)",
 };
 
+const IconButtonStyleOverrides: IconButtonProps["sx"] = {
+    // Hack required to override .gcx-forms.defaults
+    borderRadius: "50% !important",
+    // Hack required to match disabled list item content
+    "&.Mui-disabled": {
+        opacity: 0.38,
+    },
+};
 const calculateFooterRow = (cols: Column[], rows: RowData[]): FooterRow => {
     const totalCols = cols.filter((x) => x.columnCalculation);
     const total: FooterRow = {};
@@ -64,12 +75,12 @@ const calculateFooterRow = (cols: Column[], rows: RowData[]): FooterRow => {
     return total;
 };
 
-const calculateSum = (values): number => {
+const calculateSum = (values: any[]): number => {
     const numericVals = values.filter((x) => typeof x == "number");
     return numericVals.length > 0 ? numericVals.reduce((s: number, a: number) => s + a, 0) : 0;
 };
 
-const calculateAverage = (values): number => {
+const calculateAverage = (values: any[]): number => {
     const numericVals = values.filter((x) => typeof x == "number");
     const sum = numericVals.length > 0 ? numericVals.reduce((s: number, a: number) => s + a, 0) : 0;
     return sum / numericVals.length || 0;
@@ -86,70 +97,68 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
         cols,
         maxHeight,
         maxWidth,
-        onMouseEnter,
-        onMouseLeave,
-        raiseEvent,
-        setValue,
         size,
         stickyHeader,
         footerLabel,
+        editIcon,
+        saveIcon,
+        cancelIcon,
+        onMouseEnter,
+        onMouseLeave,
+        raiseEvent,
+        rowCalculation,
     } = props;
-    const [data, setData] = useState(rows);
-    setValue(data);
+
+    const [data, setData] = useState<RowData[]>([]);
+    const [editingRows, setEditingRows] = useState<Record<number, RowData>>({});
+
     useEffect(() => {
         setData(rows);
     }, [rows]);
 
-    const illegalCols = cols.filter(
-        (x) => !!x.type && ["text", "number", "date", "time", undefined].indexOf(x.type) === -1
-    );
-    if (illegalCols.length > 0) {
-        for (const illegalCol of illegalCols) {
-            const type = illegalCol.type as string;
-            console.log(
-                `Unsupported column type ${type} in column ${illegalCol.name}.  Supported types: text, number.`
-            );
-            illegalCol.type = undefined;
-        }
-    }
     const includeFooter = cols.some((x) => x.columnCalculation);
     const footerRow: FooterRow = calculateFooterRow(cols, rows);
 
     const handleMouseEnter = (event: React.MouseEvent, row: RowData) => {
-        raiseEvent("custom", {
-            eventType: "mouseEnter",
-            rowData: { rows: data, row: row },
-        });
+        raiseEvent("custom", { eventType: "mouseEnter", row });
         onMouseEnter?.(row);
     };
 
     const handleMouseLeave = (event: React.MouseEvent, row: RowData) => {
-        raiseEvent("custom", {
-            eventType: "mouseLeave",
-            rowData: { rows: data, row: row },
-        });
+        raiseEvent("custom", { eventType: "mouseLeave", row });
         onMouseLeave?.(row);
     };
 
-    const handleCellChange = (
-        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-        row: RowData,
-        column: Column
-    ) => {
-        if (column?.parse) {
-            row[column.name] = column.parse(event.target.value, row, column);
-        } else if (event.target.type === "number") {
-            row[column.name] = Number(event.target.value);
+    const handleCellChange = (value: string | number, row: RowData, column: Column) => {
+        if (column.type === "number") {
+            row[column.name] = Number(value);
         } else {
-            row[column.name] = event.target.value;
+            row[column.name] = value;
         }
-        raiseEvent("custom", {
-            eventType: "cellChange",
-            rowData: { rows: data, row: row, column: column },
-        });
-        setData([...data]);
+
+        if (rowCalculation) {
+            rowCalculation(row[column.name], row, column);
+        }
+        setEditingRows({ ...editingRows });
     };
 
+    const handleToggleEdit = (event: React.MouseEvent, index: number, rows: RowData[]) => {
+        const row = rows[index];
+        const editRow = editingRows[index];
+
+        if (editRow) {
+            rows[index] = editingRows[index];
+            delete editingRows[index];
+        } else {
+            editingRows[index] = JSON.parse(JSON.stringify(row));
+        }
+        setData([...rows]);
+    };
+
+    const handleCancel = (event: React.MouseEvent, index: number, rows: RowData[]) => {
+        setData([...rows]);
+        delete editingRows[index];
+    };
     return (
         <Box maxHeight={maxHeight} maxWidth={maxWidth} sx={{ overflow: "auto" }}>
             <Table
@@ -164,7 +173,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
             >
                 <TableHead>
                     <TableRow>
-                        {includeFooter && footerLabel && <TableCell />}
+                        <TableCell />
                         {cols.map((col) => (
                             <TableCell align={col.align} key={col.name}>
                                 {col.alias ?? col.name}
@@ -181,26 +190,67 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                 onMouseEnter={(event) => handleMouseEnter(event, row)}
                                 onMouseLeave={(event) => handleMouseLeave(event, row)}
                             >
-                                {includeFooter && footerLabel && <TableCell />}
+                                <TableCell sx={{ width: "10%" }}>
+                                    {editingRows && editingRows[index] ? (
+                                        <Box sx={{ maxWidth: "md" }}>
+                                            <IconButton
+                                                onClick={(event) =>
+                                                    handleToggleEdit(event, index, rows)
+                                                }
+                                                sx={{
+                                                    ...IconButtonStyleOverrides,
+                                                }}
+                                            >
+                                                <DynamicIcon src={saveIcon} />
+                                            </IconButton>
+                                            <IconButton
+                                                onClick={(event) =>
+                                                    handleCancel(event, index, rows)
+                                                }
+                                                sx={{
+                                                    ...IconButtonStyleOverrides,
+                                                }}
+                                            >
+                                                <DynamicIcon src={cancelIcon} />
+                                            </IconButton>
+                                        </Box>
+                                    ) : (
+                                        <Box sx={{ maxWidth: "md" }}>
+                                            <IconButton
+                                                onClick={(event) =>
+                                                    handleToggleEdit(event, index, rows)
+                                                }
+                                                sx={{
+                                                    ...IconButtonStyleOverrides,
+                                                }}
+                                            >
+                                                <DynamicIcon src={editIcon} />
+                                            </IconButton>
+                                        </Box>
+                                    )}
+                                </TableCell>
 
-                                {cols.map((col, index) => {
+                                {cols.map((col, colIndex) => {
                                     const value = row[col.name];
-                                    const formattedValue = col.format
-                                        ? col.format(value, row)
-                                        : value;
+                                    const type = col.type === "number" ? "number" : "text";
+
                                     return (
-                                        <TableCell align={col.align} key={index}>
-                                            {col.editable ? (
+                                        <TableCell align={col.align} key={colIndex}>
+                                            {col.editable && editingRows && editingRows[index] ? (
                                                 <Input
-                                                    fullWidth={col.type === "text" ? true : false}
-                                                    type={col.type}
-                                                    value={formattedValue}
+                                                    fullWidth={false}
+                                                    value={editingRows[index][col.name]}
+                                                    type={type}
                                                     onChange={(event) =>
-                                                        handleCellChange(event, row, col)
+                                                        handleCellChange(
+                                                            event.target.value,
+                                                            editingRows[index],
+                                                            col
+                                                        )
                                                     }
                                                 />
                                             ) : (
-                                                formattedValue
+                                                value
                                             )}
                                         </TableCell>
                                     );
@@ -222,11 +272,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                         key={index}
                                         sx={TableCellStyleOverrides}
                                     >
-                                        {col.footerFormat
-                                            ? col.footerFormat(footerRow[col.name], footerRow)
-                                            : col.format
-                                            ? col.format(footerRow[col.name], footerRow)
-                                            : footerRow[col.name]}
+                                        {footerRow[col.name]}
                                     </TableCell>
                                 ) : (
                                     <TableCell sx={TableCellStyleOverrides} />
