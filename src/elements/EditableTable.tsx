@@ -1,6 +1,6 @@
 import Box, { BoxProps } from "@vertigis/web/ui/Box";
 import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
-import Input from "@vertigis/web/ui/Input";
+import Input, { InputProps } from "@vertigis/web/ui/Input";
 import React, { useState, useEffect } from "react";
 import Table, { TableProps } from "@vertigis/web/ui/Table";
 import TableBody from "@vertigis/web/ui/TableBody";
@@ -10,6 +10,9 @@ import TableHead from "@vertigis/web/ui/TableHead";
 import TableRow from "@vertigis/web/ui/TableRow";
 import IconButton, { IconButtonProps } from "@vertigis/web/ui/IconButton";
 import DynamicIcon from "@vertigis/web/ui/DynamicIcon";
+
+import * as locale from "@vertigis/arcgis-extensions/locale";
+import * as numberUtils from "@vertigis/arcgis-extensions/utilities/number";
 
 type FooterRow = Record<string, any>;
 type RowData = Record<string, any>;
@@ -24,6 +27,8 @@ interface Column {
     editable?: boolean;
     type?: "text" | "number";
     step?: string;
+    numberFormat?: numberUtils.FormatOptions;
+    footerFormat?: numberUtils.FormatOptions;
 }
 
 interface EditableTableElementProps
@@ -42,11 +47,29 @@ interface EditableTableElementProps
 }
 
 //Mimic MUI header style for footer
-const TableCellStyleOverrides: TableCellProps["sx"] = {
+const FooterCellStyleOverrides: TableCellProps["sx"] = {
     fontFamily: "var(--defaultFont)",
     backgroundColor: "var(--secondaryBackground)",
     fontWeight: "bold",
     color: "var(--secondaryForeground)",
+    fontSize: "inherit",
+};
+
+//Mimic MUI header style for footer
+const TableCellStyleOverrides: TableCellProps["sx"] = {
+    fontFamily: "var(--defaultFont)",
+    fontSize: "inherit",
+};
+
+const InputStyleOverrides: InputProps["sx"] = {
+    ".MuiInput-input": {
+        borderRadius: "4px !important",
+        padding: "5px 8px !important",
+        border: "0px !important",
+        backgroundColor: "inherit",
+        width: "100%",
+        height: "auto",
+    },
 };
 
 const IconButtonStyleOverrides: IconButtonProps["sx"] = {
@@ -75,6 +98,13 @@ const calculateFooterRow = (cols: Column[], rows: RowData[]): FooterRow => {
     return total;
 };
 
+const setLocale = (formatOptions: numberUtils.FormatOptions): numberUtils.FormatOptions => {
+    if (!formatOptions.locale) {
+        formatOptions["locale"] = locale.detectLocale();
+    }
+    return formatOptions;
+};
+
 const calculateSum = (values: any[]): number => {
     const numericVals = values.filter((x) => typeof x == "number");
     return numericVals.length > 0 ? numericVals.reduce((s: number, a: number) => s + a, 0) : 0;
@@ -84,6 +114,17 @@ const calculateAverage = (values: any[]): number => {
     const numericVals = values.filter((x) => typeof x == "number");
     const sum = numericVals.length > 0 ? numericVals.reduce((s: number, a: number) => s + a, 0) : 0;
     return sum / numericVals.length || 0;
+};
+
+const formatValue = (value: string | number, column: Column, type: string): string | number => {
+    const format = column.numberFormat ? setLocale(column.numberFormat) : undefined;
+    const formattedValue =
+        type === "number"
+            ? format
+                ? numberUtils.format(format as string, value as number)
+                : value
+            : value;
+    return formattedValue;
 };
 /**
  * A table form element.
@@ -190,9 +231,9 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                 onMouseEnter={(event) => handleMouseEnter(event, row)}
                                 onMouseLeave={(event) => handleMouseLeave(event, row)}
                             >
-                                <TableCell sx={{ width: "10%" }}>
+                                <TableCell sx={{ ...TableCellStyleOverrides }} key={index}>
                                     {editingRows && editingRows[index] ? (
-                                        <Box sx={{ maxWidth: "md" }}>
+                                        <Box sx={{ ".MuiBox-root": { width: "fit-content" } }}>
                                             <IconButton
                                                 onClick={(event) =>
                                                     handleToggleEdit(event, index, rows)
@@ -231,15 +272,24 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                 </TableCell>
 
                                 {cols.map((col, colIndex) => {
-                                    const value = row[col.name];
                                     const type = col.type === "number" ? "number" : "text";
 
+                                    const value = editingRows[index]
+                                        ? editingRows[index][col.name]
+                                        : row[col.name];
+                                    const formattedValue = formatValue(value, col, type);
+
                                     return (
-                                        <TableCell align={col.align} key={colIndex}>
-                                            {col.editable && editingRows && editingRows[index] ? (
+                                        <TableCell
+                                            sx={{ ...TableCellStyleOverrides }}
+                                            align={col.align}
+                                            key={colIndex}
+                                        >
+                                            {editingRows[index] && col.editable ? (
                                                 <Input
-                                                    fullWidth={false}
-                                                    value={editingRows[index][col.name]}
+                                                    sx={{ ...InputStyleOverrides }}
+                                                    fullWidth={type === "text" ? true : false}
+                                                    value={value}
                                                     type={type}
                                                     onChange={(event) =>
                                                         handleCellChange(
@@ -250,7 +300,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                                     }
                                                 />
                                             ) : (
-                                                value
+                                                formattedValue
                                             )}
                                         </TableCell>
                                     );
@@ -262,22 +312,27 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                 {includeFooter && footerLabel && (
                     <TableFooter>
                         <TableRow hover>
-                            <TableCell align="center" sx={TableCellStyleOverrides}>
+                            <TableCell align="center" sx={{ ...FooterCellStyleOverrides }}>
                                 {footerLabel}
                             </TableCell>
-                            {cols.map((col, index) =>
-                                footerRow[col.name] ? (
+                            {cols.map((col, index) => {
+                                const type = col.type === "number" ? "number" : "text";
+                                const value = footerRow[col.name];
+                                const formattedValue = formatValue(value, col, type);
+
+                                const cell = footerRow[col.name] ? (
                                     <TableCell
                                         align={col.align}
                                         key={index}
-                                        sx={TableCellStyleOverrides}
+                                        sx={{ ...FooterCellStyleOverrides }}
                                     >
-                                        {footerRow[col.name]}
+                                        {formattedValue}
                                     </TableCell>
                                 ) : (
-                                    <TableCell sx={TableCellStyleOverrides} />
-                                )
-                            )}
+                                    <TableCell sx={{ ...FooterCellStyleOverrides }} />
+                                );
+                                return cell;
+                            })}
                         </TableRow>
                     </TableFooter>
                 )}
