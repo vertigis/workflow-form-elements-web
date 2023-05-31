@@ -9,12 +9,11 @@ import TableFooter from "@vertigis/web/ui/TableFooter";
 import TableHead from "@vertigis/web/ui/TableHead";
 import TableRow from "@vertigis/web/ui/TableRow";
 import IconButton, { IconButtonProps } from "@vertigis/web/ui/IconButton";
-import Save from "@vertigis/web/ui/icons/Save";
-import Undo from "@vertigis/web/ui/icons/Undo";
+import Check from "@vertigis/web/ui/icons/Check";
+import Close from "@vertigis/web/ui/icons/Close";
 import Edit from "@vertigis/web/ui/icons/Edit";
 
-import * as locale from "@vertigis/arcgis-extensions/locale";
-import * as numberUtils from "@vertigis/arcgis-extensions/utilities/number";
+import { FormatOptions, format } from "@vertigis/arcgis-extensions/utilities/number";
 
 type FooterRow = Record<string, any>;
 type RowData = Record<string, any>;
@@ -28,15 +27,13 @@ interface Column {
     columnCalculation?: "sum" | "average" | ((values: any) => any);
     editable?: boolean;
     type?: "text" | "number";
-    step?: string;
-    numberFormat?: numberUtils.FormatOptions;
-    footerFormat?: numberUtils.FormatOptions;
+    numberFormat?: FormatOptions;
 }
 
 interface EditableTableElementProps
     extends FormElementProps<RowData[]>,
-        SettableBoxProps,
-        SettableTableProps {
+    SettableBoxProps,
+    SettableTableProps {
     cols: Column[];
     rows: RowData[];
     footerLabel?: string;
@@ -97,13 +94,6 @@ const calculateFooterRow = (cols: Column[], rows: RowData[]): FooterRow => {
     return total;
 };
 
-const setLocale = (formatOptions: numberUtils.FormatOptions): numberUtils.FormatOptions => {
-    if (!formatOptions.locale) {
-        formatOptions["locale"] = locale.detectLocale();
-    }
-    return formatOptions;
-};
-
 const calculateSum = (values: any[]): number => {
     const numericVals = values.filter((x) => typeof x == "number");
     return numericVals.length > 0 ? numericVals.reduce((s: number, a: number) => s + a, 0) : 0;
@@ -115,16 +105,23 @@ const calculateAverage = (values: any[]): number => {
     return sum / numericVals.length || 0;
 };
 
-const formatValue = (value: string | number, column: Column, type: string): string | number => {
-    const format = column.numberFormat ? setLocale(column.numberFormat) : undefined;
-    const formattedValue =
-        type === "number"
-            ? format
-                ? numberUtils.format(format as string, value as number)
-                : value
-            : value;
-    return formattedValue;
+const formatValue = (value: any, column: Column): any => {
+    if (column.type === "number" && typeof value === "number") {
+        if (column.numberFormat) {
+            return format(column.numberFormat as string, value);
+        } else {
+            return value;
+        }
+    } else if (typeof value === "string") {
+        return value;
+    } else if (value instanceof Date) {
+        return value.toDateString();
+    } else if (Object.prototype.hasOwnProperty.call(value, "toString")) {
+        return value.toString();
+    }
+    return "-";
 };
+
 /**
  * A table form element.
  * @displayName Editable Table
@@ -181,22 +178,18 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
     const handleToggleEdit = (event: React.MouseEvent, index: number, rows: RowData[]) => {
         const row = rows[index];
         const editRow = editingRows[index];
-        const action = editRow ? "save" : "cancel";
 
         if (editRow) {
             rows[index] = editingRows[index];
             delete editingRows[index];
+            raiseEvent("custom", { eventType: "rowEdit", row });
+            onRowEdit?.(rows[index]);
+            calculateFooterRow(cols, rows);
+            setData([...rows]);
         } else {
-            editingRows[index] = JSON.parse(JSON.stringify(row));
+            editingRows[index] = { ...row };
         }
-        if (onRowEdit) {
-            onRowEdit(rows[index]);
-            if (footerRow) {
-                calculateFooterRow(cols, rows);
-            }
-        }
-        raiseEvent("custom", { eventType: "rowEditComplete", row, action });
-        setData([...rows]);
+        setEditingRows({ ...editingRows });
     };
 
     const handleCancel = (event: React.MouseEvent, index: number, rows: RowData[]) => {
@@ -239,23 +232,23 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                         <>
                                             <IconButton
                                                 onClick={(event) =>
-                                                    handleCancel(event, index, rows)
-                                                }
-                                                sx={{
-                                                    ...IconButtonStyleOverrides,
-                                                }}
-                                            >
-                                                <Undo />
-                                            </IconButton>
-                                            <IconButton
-                                                onClick={(event) =>
                                                     handleToggleEdit(event, index, rows)
                                                 }
                                                 sx={{
                                                     ...IconButtonStyleOverrides,
                                                 }}
                                             >
-                                                <Save />
+                                                <Check />
+                                            </IconButton>
+                                            <IconButton
+                                                onClick={(event) =>
+                                                    handleCancel(event, index, rows)
+                                                }
+                                                sx={{
+                                                    ...IconButtonStyleOverrides,
+                                                }}
+                                            >
+                                                <Close />
                                             </IconButton>
                                         </>
                                     ) : (
@@ -280,7 +273,6 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                     const value = editingRows[index]
                                         ? editingRows[index][col.name]
                                         : row[col.name];
-                                    const formattedValue = formatValue(value, col, type);
 
                                     return (
                                         <TableCell
@@ -303,7 +295,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                                     }
                                                 />
                                             ) : (
-                                                formattedValue
+                                                formatValue(value, col)
                                             )}
                                         </TableCell>
                                     );
@@ -319,22 +311,16 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                 {footerLabel}
                             </TableCell>
                             {cols.map((col, index) => {
-                                const type = col.type === "number" ? "number" : "text";
                                 const value = footerRow[col.name];
-                                const formattedValue = formatValue(value, col, type);
-
-                                const cell = footerRow[col.name] ? (
+                                return (
                                     <TableCell
                                         align={col.align}
                                         key={index}
                                         sx={{ ...FooterCellStyleOverrides }}
                                     >
-                                        {formattedValue}
+                                        {(!!value || value === 0) && formatValue(value, col)}
                                     </TableCell>
-                                ) : (
-                                    <TableCell sx={{ ...FooterCellStyleOverrides }} />
                                 );
-                                return cell;
                             })}
                         </TableRow>
                     </TableFooter>
