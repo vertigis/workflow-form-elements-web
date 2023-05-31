@@ -154,6 +154,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
     }, [rows]);
 
     const includeFooter = cols.some((x) => x.columnCalculation);
+    const canEdit = cols.some((x) => x.editable);
     const footerRow: FooterRow | undefined = includeFooter
         ? calculateFooterRow(cols, rows)
         : undefined;
@@ -234,7 +235,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                 onMouseLeave={(event) => handleMouseLeave(event, row)}
                             >
                                 <TableCell sx={{ ...TableCellStyleOverrides }} key={index}>
-                                    {editingRows && editingRows[index] ? (
+                                    {canEdit && editingRows && editingRows[index] ? (
                                         <>
                                             <IconButton
                                                 onClick={(event) =>
@@ -258,16 +259,18 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                             </IconButton>
                                         </>
                                     ) : (
-                                        <IconButton
-                                            onClick={(event) =>
-                                                handleToggleEdit(event, index, rows)
-                                            }
-                                            sx={{
-                                                ...IconButtonStyleOverrides,
-                                            }}
-                                        >
-                                            <Edit />
-                                        </IconButton>
+                                        canEdit && (
+                                            <IconButton
+                                                onClick={(event) =>
+                                                    handleToggleEdit(event, index, rows)
+                                                }
+                                                sx={{
+                                                    ...IconButtonStyleOverrides,
+                                                }}
+                                            >
+                                                <Edit />
+                                            </IconButton>
+                                        )
                                     )}
                                 </TableCell>
 
