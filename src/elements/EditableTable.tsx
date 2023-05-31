@@ -9,7 +9,9 @@ import TableFooter from "@vertigis/web/ui/TableFooter";
 import TableHead from "@vertigis/web/ui/TableHead";
 import TableRow from "@vertigis/web/ui/TableRow";
 import IconButton, { IconButtonProps } from "@vertigis/web/ui/IconButton";
-import DynamicIcon from "@vertigis/web/ui/DynamicIcon";
+import Save from "@vertigis/web/ui/icons/Save";
+import Undo from "@vertigis/web/ui/icons/Undo";
+import Cancel from "@vertigis/web/ui/icons/Cancel";
 
 import * as locale from "@vertigis/arcgis-extensions/locale";
 import * as numberUtils from "@vertigis/arcgis-extensions/utilities/number";
@@ -33,17 +35,14 @@ interface Column {
 
 interface EditableTableElementProps
     extends FormElementProps<RowData[]>,
-        SettableBoxProps,
-        SettableTableProps {
+    SettableBoxProps,
+    SettableTableProps {
     cols: Column[];
     rows: RowData[];
-    editIcon: string;
-    saveIcon: string;
-    cancelIcon: string;
     footerLabel?: string;
     onMouseEnter?: (row: RowData) => void;
     onMouseLeave?: (row: RowData) => void;
-    rowCalculation?: (value: string | number, row: RowData, column: Column) => RowData;
+    onRowEdit?: (row: RowData) => RowData;
 }
 
 //Mimic MUI header style for footer
@@ -141,13 +140,10 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
         size,
         stickyHeader,
         footerLabel,
-        editIcon,
-        saveIcon,
-        cancelIcon,
         onMouseEnter,
         onMouseLeave,
         raiseEvent,
-        rowCalculation,
+        onRowEdit,
     } = props;
 
     const [data, setData] = useState<RowData[]>([]);
@@ -177,9 +173,6 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
             row[column.name] = value;
         }
 
-        if (rowCalculation) {
-            rowCalculation(row[column.name], row, column);
-        }
         setEditingRows({ ...editingRows });
     };
 
@@ -192,6 +185,9 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
             delete editingRows[index];
         } else {
             editingRows[index] = JSON.parse(JSON.stringify(row));
+        }
+        if (onRowEdit) {
+            onRowEdit(rows[index]);
         }
         setData([...rows]);
     };
@@ -233,7 +229,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                             >
                                 <TableCell sx={{ ...TableCellStyleOverrides }} key={index}>
                                     {editingRows && editingRows[index] ? (
-                                        <Box sx={{ ".MuiBox-root": { width: "fit-content" } }}>
+                                        <>
                                             <IconButton
                                                 onClick={(event) =>
                                                     handleToggleEdit(event, index, rows)
@@ -242,7 +238,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                                     ...IconButtonStyleOverrides,
                                                 }}
                                             >
-                                                <DynamicIcon src={saveIcon} />
+                                                <Save />
                                             </IconButton>
                                             <IconButton
                                                 onClick={(event) =>
@@ -252,22 +248,20 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                                     ...IconButtonStyleOverrides,
                                                 }}
                                             >
-                                                <DynamicIcon src={cancelIcon} />
+                                                <Cancel />
                                             </IconButton>
-                                        </Box>
+                                        </>
                                     ) : (
-                                        <Box sx={{ maxWidth: "md" }}>
-                                            <IconButton
-                                                onClick={(event) =>
-                                                    handleToggleEdit(event, index, rows)
-                                                }
-                                                sx={{
-                                                    ...IconButtonStyleOverrides,
-                                                }}
-                                            >
-                                                <DynamicIcon src={editIcon} />
-                                            </IconButton>
-                                        </Box>
+                                        <IconButton
+                                            onClick={(event) =>
+                                                handleToggleEdit(event, index, rows)
+                                            }
+                                            sx={{
+                                                ...IconButtonStyleOverrides,
+                                            }}
+                                        >
+                                            <Undo />
+                                        </IconButton>
                                     )}
                                 </TableCell>
 
