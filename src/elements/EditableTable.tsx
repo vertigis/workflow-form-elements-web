@@ -11,7 +11,7 @@ import TableRow from "@vertigis/web/ui/TableRow";
 import IconButton, { IconButtonProps } from "@vertigis/web/ui/IconButton";
 import Save from "@vertigis/web/ui/icons/Save";
 import Undo from "@vertigis/web/ui/icons/Undo";
-import Cancel from "@vertigis/web/ui/icons/Cancel";
+import Edit from "@vertigis/web/ui/icons/Edit";
 
 import * as locale from "@vertigis/arcgis-extensions/locale";
 import * as numberUtils from "@vertigis/arcgis-extensions/utilities/number";
@@ -35,8 +35,8 @@ interface Column {
 
 interface EditableTableElementProps
     extends FormElementProps<RowData[]>,
-    SettableBoxProps,
-    SettableTableProps {
+        SettableBoxProps,
+        SettableTableProps {
     cols: Column[];
     rows: RowData[];
     footerLabel?: string;
@@ -154,7 +154,9 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
     }, [rows]);
 
     const includeFooter = cols.some((x) => x.columnCalculation);
-    const footerRow: FooterRow = calculateFooterRow(cols, rows);
+    const footerRow: FooterRow | undefined = includeFooter
+        ? calculateFooterRow(cols, rows)
+        : undefined;
 
     const handleMouseEnter = (event: React.MouseEvent, row: RowData) => {
         raiseEvent("custom", { eventType: "mouseEnter", row });
@@ -172,13 +174,13 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
         } else {
             row[column.name] = value;
         }
-
         setEditingRows({ ...editingRows });
     };
 
     const handleToggleEdit = (event: React.MouseEvent, index: number, rows: RowData[]) => {
         const row = rows[index];
         const editRow = editingRows[index];
+        const action = editRow ? "save" : "cancel";
 
         if (editRow) {
             rows[index] = editingRows[index];
@@ -188,7 +190,11 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
         }
         if (onRowEdit) {
             onRowEdit(rows[index]);
+            if (footerRow) {
+                calculateFooterRow(cols, rows);
+            }
         }
+        raiseEvent("custom", { eventType: "rowEditComplete", row, action });
         setData([...rows]);
     };
 
@@ -232,6 +238,16 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                         <>
                                             <IconButton
                                                 onClick={(event) =>
+                                                    handleCancel(event, index, rows)
+                                                }
+                                                sx={{
+                                                    ...IconButtonStyleOverrides,
+                                                }}
+                                            >
+                                                <Undo />
+                                            </IconButton>
+                                            <IconButton
+                                                onClick={(event) =>
                                                     handleToggleEdit(event, index, rows)
                                                 }
                                                 sx={{
@@ -239,16 +255,6 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                                 }}
                                             >
                                                 <Save />
-                                            </IconButton>
-                                            <IconButton
-                                                onClick={(event) =>
-                                                    handleCancel(event, index, rows)
-                                                }
-                                                sx={{
-                                                    ...IconButtonStyleOverrides,
-                                                }}
-                                            >
-                                                <Cancel />
                                             </IconButton>
                                         </>
                                     ) : (
@@ -260,7 +266,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                                 ...IconButtonStyleOverrides,
                                             }}
                                         >
-                                            <Undo />
+                                            <Edit />
                                         </IconButton>
                                     )}
                                 </TableCell>
@@ -303,7 +309,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                         );
                     })}
                 </TableBody>
-                {includeFooter && footerLabel && (
+                {footerRow && footerLabel && (
                     <TableFooter>
                         <TableRow hover>
                             <TableCell align="center" sx={{ ...FooterCellStyleOverrides }}>
