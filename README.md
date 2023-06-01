@@ -15,6 +15,7 @@ The following React components/form elements are supported:
 - `Chip`
 - `CircularProgress`
 - `DynamicIcon`
+- `EditableTable`
 - `IconButton`
 - `LinearProgress`
 - `Link`
