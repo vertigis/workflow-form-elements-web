@@ -39,7 +39,7 @@ interface EditableTableElementProps
     footerLabel?: string;
     onMouseEnter?: (row: RowData) => void;
     onMouseLeave?: (row: RowData) => void;
-    onRowEdit?: (row: RowData) => RowData;
+    onRowEdit?: (row: RowData) => void;
 }
 
 //Mimic MUI header style for footer
@@ -108,7 +108,7 @@ const calculateAverage = (values: any[]): number => {
 const formatValue = (value: any, column: Column): any => {
     if (column.type === "number" && typeof value === "number") {
         if (column.numberFormat) {
-            return format(column.numberFormat as string, value);
+            return format(column.numberFormat, value);
         } else {
             return value;
         }
@@ -116,7 +116,7 @@ const formatValue = (value: any, column: Column): any => {
         return value;
     } else if (value instanceof Date) {
         return value.toDateString();
-    } else if (Object.prototype.hasOwnProperty.call(value, "toString")) {
+    } else if (typeof value?.toString === "function") {
         return value.toString();
     }
     return "-";
@@ -175,26 +175,25 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
         setEditingRows({ ...editingRows });
     };
 
-    const handleToggleEdit = (event: React.MouseEvent, index: number, rows: RowData[]) => {
-        const row = rows[index];
-        const editRow = editingRows[index];
-
-        if (editRow) {
-            rows[index] = editingRows[index];
-            delete editingRows[index];
-            raiseEvent("custom", { eventType: "rowEdit", row });
-            onRowEdit?.(rows[index]);
-            calculateFooterRow(cols, rows);
-            setData([...rows]);
-        } else {
-            editingRows[index] = { ...row };
-        }
+    const handleBeginEdit = (event: React.MouseEvent, index: number) => {
+        editingRows[index] = { ...rows[index] };
         setEditingRows({ ...editingRows });
     };
 
-    const handleCancel = (event: React.MouseEvent, index: number, rows: RowData[]) => {
-        setData([...rows]);
+    const handleCompleteEdit = (event: React.MouseEvent, index: number) => {
+        rows[index] = editingRows[index];
         delete editingRows[index];
+        raiseEvent("custom", { eventType: "rowEdit", row: rows[index] });
+        onRowEdit?.(rows[index]);
+        calculateFooterRow(cols, rows);
+        setData([...rows]);
+        setEditingRows({ ...editingRows });
+    };
+
+    const handleCancelEdit = (event: React.MouseEvent, index: number) => {
+        setData([...data]);
+        delete editingRows[index];
+        setEditingRows({ ...editingRows });
     };
     return (
         <Box maxHeight={maxHeight} maxWidth={maxWidth} sx={{ overflow: "auto" }}>
@@ -232,7 +231,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                         <>
                                             <IconButton
                                                 onClick={(event) =>
-                                                    handleToggleEdit(event, index, rows)
+                                                    handleCompleteEdit(event, index)
                                                 }
                                                 sx={{
                                                     ...IconButtonStyleOverrides,
@@ -241,9 +240,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                                 <Check />
                                             </IconButton>
                                             <IconButton
-                                                onClick={(event) =>
-                                                    handleCancel(event, index, rows)
-                                                }
+                                                onClick={(event) => handleCancelEdit(event, index)}
                                                 sx={{
                                                     ...IconButtonStyleOverrides,
                                                 }}
@@ -254,9 +251,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                     ) : (
                                         canEdit && (
                                             <IconButton
-                                                onClick={(event) =>
-                                                    handleToggleEdit(event, index, rows)
-                                                }
+                                                onClick={(event) => handleBeginEdit(event, index)}
                                                 sx={{
                                                     ...IconButtonStyleOverrides,
                                                 }}
