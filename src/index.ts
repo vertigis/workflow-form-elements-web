@@ -6,6 +6,7 @@ export { default as ChipElementRegistration } from "./elements/Chip";
 export { default as CheckboxListElementRegistration } from "./elements/CheckboxList";
 export { default as CircularProgressElementRegistration } from "./elements/CircularProgress";
 export { default as DynamicIconElementRegistration } from "./elements/DynamicIcon";
+export { default as EditableTableRegistration } from "./elements/EditableTable";
 export { default as IconButtonElementRegistration } from "./elements/IconButton";
 export { default as LinearProgressElementRegistration } from "./elements/LinearProgress";
 export { default as LinkElementRegistration } from "./elements/Link";
