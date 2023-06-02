@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState, MouseEvent, Fragment, ReactElement } from "react";
 import Box from "@vertigis/web/ui/Box";
 import Checkbox, { CheckboxProps } from "@vertigis/web/ui/Checkbox";
 import ChevronDownIcon from "@vertigis/web/ui/icons/ChevronDown";
@@ -32,7 +32,6 @@ interface TreeElementNode {
 interface TreeElementProps extends FormElementProps<TreeElementNode[] | undefined> {
     items: TreeElementNode[];
     onClick?: (node: TreeElementNode) => void;
-    onSecondaryClick?: (node: TreeElementNode) => void;
     onMouseEnter?: (node: TreeElementNode) => void;
     onMouseLeave?: (node: TreeElementNode) => void;
     showCheckboxes?: boolean;
@@ -69,8 +68,8 @@ function renderChild(
     showCheckboxes: boolean | undefined,
     level: number,
     dense: boolean | undefined,
-    handleMouseEnter: (event: React.MouseEvent, node: TreeElementNode) => void,
-    handleMouseLeave: (event: React.MouseEvent, node: TreeElementNode) => void,
+    handleMouseEnter: (event: MouseEvent, node: TreeElementNode) => void,
+    handleMouseLeave: (event: MouseEvent, node: TreeElementNode) => void,
     handleItemClick: (node: TreeElementNode) => void,
     handleFolderClick: (node: TreeElementNode) => void
 ) {
@@ -90,7 +89,7 @@ function renderChild(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const TreeCheckbox = (props: CheckboxProps) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [isChecked, setIsChecked] = React.useState(node.checked);
+        const [isChecked, setIsChecked] = useState(node.checked);
 
         return (
             <Checkbox
@@ -105,7 +104,7 @@ function renderChild(
         );
     };
     return (
-        <React.Fragment>
+        <Fragment>
             <ListItemButton
                 disabled={node.disabled}
                 sx={{
@@ -156,7 +155,7 @@ function renderChild(
                     </List>
                 </Collapse>
             )}
-        </React.Fragment>
+        </Fragment>
     );
 }
 
@@ -166,8 +165,8 @@ function renderList(
     showCheckboxes: boolean | undefined,
     level: number,
     dense,
-    handleMouseEnter: (event: React.MouseEvent, node: TreeElementNode) => void,
-    handleMouseLeave: (event: React.MouseEvent, node: TreeElementNode) => void,
+    handleMouseEnter: (event: MouseEvent, node: TreeElementNode) => void,
+    handleMouseLeave: (event: MouseEvent, node: TreeElementNode) => void,
     handleItemClick: (node: any) => void,
     handleFolderClick: (node: any) => void
 ) {
@@ -198,7 +197,7 @@ function renderList(
  * @description A tree view form element.
  * @param props The props that will be provided by the Workflow runtime.
  */
-function TreeElement(props: TreeElementProps): React.ReactElement {
+function TreeElement(props: TreeElementProps): ReactElement {
     const {
         maxWidth,
         maxHeight,
@@ -212,14 +211,14 @@ function TreeElement(props: TreeElementProps): React.ReactElement {
         raiseEvent,
         setValue,
     } = props;
-    const [items, setItems] = React.useState(props?.items);
+    const [items, setItems] = useState(props?.items);
 
-    const handleMouseEnter = (event: React.MouseEvent, node: TreeElementNode) => {
+    const handleMouseEnter = (event: MouseEvent, node: TreeElementNode) => {
         raiseEvent("custom", { eventType: "mouseEnter", node });
         onMouseEnter?.(node);
     };
 
-    const handleMouseLeave = (event: React.MouseEvent, node: TreeElementNode) => {
+    const handleMouseLeave = (event: MouseEvent, node: TreeElementNode) => {
         raiseEvent("custom", { eventType: "mouseLeave", node });
         onMouseLeave?.(node);
     };

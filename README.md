@@ -25,6 +25,7 @@ The following React components/form elements are supported:
 - `Switch`
 - `Tabs`
 - `Table`
+- `Tree`
 - `ToggleButton`
 - `Typography`
 
