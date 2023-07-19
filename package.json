@@ -25,7 +25,7 @@
     "devDependencies": {
         "@geocortex/workflow": "5.28.1",
         "@vertigis/workflow-sdk": "2.0.5",
-        "@vertigis/web": "5.18.0",
+        "@vertigis/web": "5.24.0",
         "conventional-changelog-conventionalcommits": "^5.0.0",
         "eslint-plugin-prettier": "^4.2.1",
         "prettier": "^2.7.1",
