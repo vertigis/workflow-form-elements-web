@@ -34,8 +34,8 @@ interface ListElementItem {
 
 interface CheckboxListElementProps
     extends FormElementProps<ListElementItem[]>,
-        SettableBoxProps,
-        SettableListProps {
+    SettableBoxProps,
+    SettableListProps {
     enableDelete?: boolean;
     items: ListElementItem[];
     onClick?: (item: ListElementItem) => void;
@@ -48,6 +48,7 @@ interface CheckboxListElementProps
  * A checkbox list form element.
  * @displayName Checkbox List
  * @description A checkbox list form element.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function CheckboxListElement(props: CheckboxListElementProps): React.ReactElement {

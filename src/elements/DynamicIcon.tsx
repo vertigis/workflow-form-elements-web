@@ -12,6 +12,7 @@ interface DynamicIconElementProps extends FormElementProps, SettableDynamicIconP
  * An icon form element.
  * @displayName Dynamic Icon
  * @description An icon form element.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function DynamicIconElement(props: DynamicIconElementProps): React.ReactElement {

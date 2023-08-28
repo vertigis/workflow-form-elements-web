@@ -8,8 +8,8 @@ type SettableLinearProgressProps = Pick<LinearProgressProps, "color" | "variant"
 
 interface LinearProgressElementProps
     extends FormElementProps<number | undefined>,
-        SettableBoxProps,
-        SettableLinearProgressProps {
+    SettableBoxProps,
+    SettableLinearProgressProps {
     tooltip?: string;
 }
 
@@ -17,6 +17,7 @@ interface LinearProgressElementProps
  * A linear progress indicator form element.
  * @displayName Linear Progress
  * @description A linear progress indicator.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function LinearProgressElement(props: LinearProgressElementProps): React.ReactElement {

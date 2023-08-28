@@ -22,8 +22,8 @@ type SettableTableProps = Pick<TableProps, "size" | "stickyHeader">;
 
 interface TableElementProps
     extends FormElementProps<RowData[]>,
-        SettableBoxProps,
-        SettableTableProps {
+    SettableBoxProps,
+    SettableTableProps {
     cols: Column[];
     onClick?: (row: RowData) => void;
     onMouseEnter?: (row: RowData) => void;
@@ -36,6 +36,7 @@ interface TableElementProps
  * A table form element.
  * @displayName Table
  * @description A table form element.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function TableElement(props: TableElementProps): React.ReactElement | null {

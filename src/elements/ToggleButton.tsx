@@ -7,7 +7,7 @@ type SettableToggleButtonProps = Pick<ToggleButtonProps, "color" | "selected" | 
 
 interface ToggleButtonElementProps
     extends FormElementProps<ToggleButtonProps["value"]>,
-        SettableToggleButtonProps {
+    SettableToggleButtonProps {
     icon?: DynamicIconProps["src"];
     text: string;
     tooltip?: string;
@@ -17,6 +17,7 @@ interface ToggleButtonElementProps
  * A toggle button form element.
  * @displayName Toggle Button
  * @description A toggle button form element.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function ToggleButtonElement(props: ToggleButtonElementProps): React.ReactElement {

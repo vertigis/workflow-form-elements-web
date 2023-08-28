@@ -17,7 +17,7 @@ interface TabItem extends SettableTabProps {
 
 interface TabsElementProps
     extends FormElementProps<SettableTabProps | undefined>,
-        SettableTabsProps {
+    SettableTabsProps {
     tabs: TabItem[];
 }
 
@@ -25,6 +25,7 @@ interface TabsElementProps
  * A tab control form element.
  * @displayName Tabs
  * @description A tab control form element.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function TabsElement(props: TabsElementProps): React.ReactElement | null {

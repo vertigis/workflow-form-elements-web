@@ -9,7 +9,7 @@ type SettableCircularProgressProps = Pick<
 
 interface CircularProgressElementProps
     extends FormElementProps<number | undefined>,
-        SettableCircularProgressProps {
+    SettableCircularProgressProps {
     tooltip?: string;
 }
 
@@ -17,6 +17,7 @@ interface CircularProgressElementProps
  * A circular progress indicator form element.
  * @displayName Circular Progress
  * @description A circular progress indicator form element.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function CircularProgressElement(props: CircularProgressElementProps): React.ReactElement {

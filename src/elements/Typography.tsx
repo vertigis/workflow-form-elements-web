@@ -12,6 +12,7 @@ interface TypographyElementProps extends FormElementProps, SettableTypographyPro
  * A typography form element.
  * @displayName Typography
  * @description A typography form element.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function TypographyElement(props: TypographyElementProps): React.ReactElement {
