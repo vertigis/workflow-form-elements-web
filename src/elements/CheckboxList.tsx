@@ -34,8 +34,8 @@ interface ListElementItem {
 
 interface CheckboxListElementProps
     extends FormElementProps<ListElementItem[]>,
-    SettableBoxProps,
-    SettableListProps {
+        SettableBoxProps,
+        SettableListProps {
     enableDelete?: boolean;
     items: ListElementItem[];
     onClick?: (item: ListElementItem) => void;

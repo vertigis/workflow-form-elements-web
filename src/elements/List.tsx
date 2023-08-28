@@ -33,8 +33,8 @@ interface ListElementItem {
 
 interface ListElementProps
     extends FormElementProps<ListElementItem | undefined>,
-    SettableBoxProps,
-    SettableListProps {
+        SettableBoxProps,
+        SettableListProps {
     enableDelete?: boolean;
     items: ListElementItem[];
     onClick?: (item: ListElementItem) => void;

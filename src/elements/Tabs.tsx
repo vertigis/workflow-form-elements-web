@@ -17,7 +17,7 @@ interface TabItem extends SettableTabProps {
 
 interface TabsElementProps
     extends FormElementProps<SettableTabProps | undefined>,
-    SettableTabsProps {
+        SettableTabsProps {
     tabs: TabItem[];
 }
 

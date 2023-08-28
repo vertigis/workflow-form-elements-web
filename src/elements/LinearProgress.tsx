@@ -8,8 +8,8 @@ type SettableLinearProgressProps = Pick<LinearProgressProps, "color" | "variant"
 
 interface LinearProgressElementProps
     extends FormElementProps<number | undefined>,
-    SettableBoxProps,
-    SettableLinearProgressProps {
+        SettableBoxProps,
+        SettableLinearProgressProps {
     tooltip?: string;
 }
 

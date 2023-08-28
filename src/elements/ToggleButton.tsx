@@ -7,7 +7,7 @@ type SettableToggleButtonProps = Pick<ToggleButtonProps, "color" | "selected" | 
 
 interface ToggleButtonElementProps
     extends FormElementProps<ToggleButtonProps["value"]>,
-    SettableToggleButtonProps {
+        SettableToggleButtonProps {
     icon?: DynamicIconProps["src"];
     text: string;
     tooltip?: string;

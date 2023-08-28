@@ -20,8 +20,8 @@ type SettableSliderProps = Pick<
 
 interface SliderElementProps
     extends FormElementProps<number | number[]>,
-    SettableBoxProps,
-    SettableSliderProps {
+        SettableBoxProps,
+        SettableSliderProps {
     tooltip?: string;
 }
 

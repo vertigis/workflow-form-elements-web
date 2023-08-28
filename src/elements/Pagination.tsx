@@ -18,7 +18,7 @@ type SettablePaginationProps = Pick<
     | "variant"
 >;
 
-interface PaginationElementProps extends FormElementProps, SettablePaginationProps { }
+interface PaginationElementProps extends FormElementProps, SettablePaginationProps {}
 
 /**
  * A pagination form element that enables the user to select a specific page from a range of pages.

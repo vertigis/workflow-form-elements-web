@@ -9,8 +9,8 @@ type SettableIconButtonProps = Pick<IconButtonProps, "color" | "size">;
 
 interface IconButtonElementProps
     extends FormElementProps<IconButtonProps["value"]>,
-    SettableDynamicIconProps,
-    SettableIconButtonProps {
+        SettableDynamicIconProps,
+        SettableIconButtonProps {
     tooltip?: string;
 }
 

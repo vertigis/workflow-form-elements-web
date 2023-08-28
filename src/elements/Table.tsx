@@ -22,8 +22,8 @@ type SettableTableProps = Pick<TableProps, "size" | "stickyHeader">;
 
 interface TableElementProps
     extends FormElementProps<RowData[]>,
-    SettableBoxProps,
-    SettableTableProps {
+        SettableBoxProps,
+        SettableTableProps {
     cols: Column[];
     onClick?: (row: RowData) => void;
     onMouseEnter?: (row: RowData) => void;

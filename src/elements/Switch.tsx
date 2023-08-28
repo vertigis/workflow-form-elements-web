@@ -9,8 +9,8 @@ type SettableFormControlLabelProps = Pick<FormControlLabelProps, "label" | "labe
 
 interface SwitchElementProps
     extends FormElementProps<unknown>,
-    SettableSwitchProps,
-    SettableFormControlLabelProps {
+        SettableSwitchProps,
+        SettableFormControlLabelProps {
     tooltip?: string;
 }
 

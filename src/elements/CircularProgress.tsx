@@ -9,7 +9,7 @@ type SettableCircularProgressProps = Pick<
 
 interface CircularProgressElementProps
     extends FormElementProps<number | undefined>,
-    SettableCircularProgressProps {
+        SettableCircularProgressProps {
     tooltip?: string;
 }
 
