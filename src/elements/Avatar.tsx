@@ -13,6 +13,7 @@ interface AvatarElementProps extends FormElementProps, SettableAvatarProps {
  * An avatar form element.
  * @displayName Avatar
  * @description An avatar form element.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function AvatarElement(props: AvatarElementProps): React.ReactElement {

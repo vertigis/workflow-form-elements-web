@@ -15,6 +15,7 @@ interface AlertElementProps extends FormElementProps, SettableBoxProps, Settable
  * An alert form element.
  * @displayName Alert
  * @description An alert form element that displays a short, important message in a way that attracts the user's attention without interrupting the user's task.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function AlertElement(props: AlertElementProps): React.ReactElement {

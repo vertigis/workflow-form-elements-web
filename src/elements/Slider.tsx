@@ -29,6 +29,7 @@ interface SliderElementProps
  * A slider form element.
  * @displayName Slider
  * @description A slider form element that allows users to make selections from a range of values.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function SliderElement(props: SliderElementProps): React.ReactElement {

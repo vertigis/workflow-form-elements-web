@@ -18,6 +18,7 @@ interface SwitchElementProps
  * A switch form element.
  * @displayName Switch
  * @description A switch form element.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function SwitchElement(props: SwitchElementProps): React.ReactElement {

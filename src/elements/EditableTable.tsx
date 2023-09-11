@@ -126,6 +126,7 @@ const formatValue = (value: any, column: Column): any => {
  * A table form element.
  * @displayName Editable Table
  * @description A table form element that allows for inline editing and tabular calculation.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function EditableTableElement(props: EditableTableElementProps): React.ReactElement | null {

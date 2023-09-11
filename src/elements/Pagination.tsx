@@ -24,6 +24,7 @@ interface PaginationElementProps extends FormElementProps, SettablePaginationPro
  * A pagination form element that enables the user to select a specific page from a range of pages.
  * @displayName Pagination
  * @description A pagination form element that enables the user to select a specific page from a range of pages.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function PaginationElement(props: PaginationElementProps): React.ReactElement {

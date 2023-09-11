@@ -18,6 +18,7 @@ interface IconButtonElementProps
  * An icon button form element.
  * @displayName Icon Button
  * @description An icon button form element.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function IconButtonElement(props: IconButtonElementProps): React.ReactElement {

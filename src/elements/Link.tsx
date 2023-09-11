@@ -18,6 +18,7 @@ interface LinkElementProps extends FormElementProps, SettableLinkProps {
  * A hyperLink form element.
  * @displayName Link
  * @description A hyperlink form element.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function LinkElement(props: LinkElementProps): React.ReactElement {

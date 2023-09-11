@@ -19,6 +19,7 @@ interface ButtonElementProps extends FormElementProps<ButtonProps["value"]>, Set
  * A button form element.
  * @displayName Button
  * @description A button form element.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function ButtonElement(props: ButtonElementProps): React.ReactElement {

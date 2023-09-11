@@ -13,6 +13,7 @@ interface ChipElementProps extends FormElementProps, SettableChipProps {
  * A chip form element.
  * @displayName Chip
  * @description A chip form element
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function ChipElement(props: ChipElementProps): React.ReactElement {

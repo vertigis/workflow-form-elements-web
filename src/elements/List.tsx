@@ -47,6 +47,7 @@ interface ListElementProps
  * A list form element.
  * @displayName List
  * @description A list form element.
+ * @supportedApps GWV
  * @param props The props that will be provided by the Workflow runtime.
  */
 function ListElement(props: ListElementProps): React.ReactElement {
