@@ -8,7 +8,7 @@ type OverrideProps = Pick<ToggleButtonProps, "size">;
 
 interface ToggleButtonElementProps
     extends FormElementProps<ToggleButtonProps["value"]>,
-    SettableToggleButtonProps {
+        SettableToggleButtonProps {
     icon?: DynamicIconProps["src"];
     text: string;
     tooltip?: string;
@@ -22,8 +22,7 @@ interface ToggleButtonElementProps
  * @param props The props that will be provided by the Workflow runtime.
  */
 function ToggleButtonElement(props: ToggleButtonElementProps): React.ReactElement {
-    const { color, enabled, icon, raiseEvent, selected, setProperty, text, value, tooltip } =
-        props;
+    const { color, enabled, icon, raiseEvent, selected, setProperty, text, value, tooltip } = props;
     const { size } = props as OverrideProps;
 
     const handleChange = (event: React.MouseEvent<HTMLElement>, value: any) => {
