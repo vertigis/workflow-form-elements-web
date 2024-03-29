@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import Typography, { TypographyProps } from "@vertigis/web/ui/Typography";
 
 type SettableTypographyProps = Pick<TypographyProps, "align" | "color" | "text" | "variant">;

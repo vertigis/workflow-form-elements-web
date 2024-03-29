@@ -1,13 +1,14 @@
 import * as React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import ToggleButton, { ToggleButtonProps } from "@vertigis/web/ui/ToggleButton";
 import DynamicIcon, { DynamicIconProps } from "@vertigis/web/ui/DynamicIcon";
 
-type SettableToggleButtonProps = Pick<ToggleButtonProps, "color" | "selected" | "size">;
+type SettableToggleButtonProps = Pick<ToggleButtonProps, "color" | "selected">;
+type OverrideProps = Pick<ToggleButtonProps, "size">;
 
 interface ToggleButtonElementProps
     extends FormElementProps<ToggleButtonProps["value"]>,
-        SettableToggleButtonProps {
+    SettableToggleButtonProps {
     icon?: DynamicIconProps["src"];
     text: string;
     tooltip?: string;
@@ -21,11 +22,12 @@ interface ToggleButtonElementProps
  * @param props The props that will be provided by the Workflow runtime.
  */
 function ToggleButtonElement(props: ToggleButtonElementProps): React.ReactElement {
-    const { color, enabled, icon, raiseEvent, selected, setProperty, size, text, value, tooltip } =
+    const { color, enabled, icon, raiseEvent, selected, setProperty, text, value, tooltip } =
         props;
+    const { size } = props as OverrideProps;
 
     const handleChange = (event: React.MouseEvent<HTMLElement>, value: any) => {
-        setProperty("selected", !selected);
+        setProperty("selected" as any, !selected);
         raiseEvent("changed" as any, selected ? undefined : value);
     };
 

@@ -1,5 +1,5 @@
 import Box, { BoxProps } from "@vertigis/web/ui/Box";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import Input, { InputProps } from "@vertigis/web/ui/Input";
 import React, { useState, useEffect } from "react";
 import Table, { TableProps } from "@vertigis/web/ui/Table";
@@ -18,7 +18,8 @@ import { FormatOptions, format } from "@vertigis/arcgis-extensions/utilities/num
 type FooterRow = Record<string, any>;
 type RowData = Record<string, any>;
 type SettableBoxProps = Pick<BoxProps, "maxHeight" | "maxWidth">;
-type SettableTableProps = Pick<TableProps, "size" | "stickyHeader">;
+type SettableTableProps = Pick<TableProps, "stickyHeader">;
+type OverrideProps = Pick<TableProps, "size">;
 
 interface Column {
     name: string;
@@ -135,7 +136,6 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
         cols,
         maxHeight,
         maxWidth,
-        size,
         stickyHeader,
         footerLabel,
         onMouseEnter,
@@ -143,6 +143,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
         raiseEvent,
         onRowEdit,
     } = props;
+    const { size } = props as OverrideProps;
 
     const [data, setData] = useState<RowData[]>([]);
     const [editingRows, setEditingRows] = useState<Record<number, RowData>>({});
@@ -231,7 +232,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                     {canEdit && editingRows && editingRows[index] ? (
                                         <>
                                             <IconButton
-                                                onClick={(event) =>
+                                                onClick={(event: React.MouseEvent) =>
                                                     handleCompleteEdit(event, index)
                                                 }
                                                 sx={{
@@ -241,7 +242,9 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                                 <Check />
                                             </IconButton>
                                             <IconButton
-                                                onClick={(event) => handleCancelEdit(event, index)}
+                                                onClick={(event: React.MouseEvent) =>
+                                                    handleCancelEdit(event, index)
+                                                }
                                                 sx={{
                                                     ...IconButtonStyleOverrides,
                                                 }}
@@ -252,7 +255,9 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                     ) : (
                                         canEdit && (
                                             <IconButton
-                                                onClick={(event) => handleBeginEdit(event, index)}
+                                                onClick={(event: React.MouseEvent) =>
+                                                    handleBeginEdit(event, index)
+                                                }
                                                 sx={{
                                                     ...IconButtonStyleOverrides,
                                                 }}
@@ -286,7 +291,7 @@ function EditableTableElement(props: EditableTableElementProps): React.ReactElem
                                                         handleCellChange(
                                                             event.target.value,
                                                             editingRows[index],
-                                                            col
+                                                            col,
                                                         )
                                                     }
                                                 />

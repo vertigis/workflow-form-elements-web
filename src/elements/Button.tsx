@@ -1,12 +1,13 @@
 import * as React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import Button, { ButtonProps } from "@vertigis/web/ui/Button";
 import DynamicIcon, { DynamicIconProps } from "@vertigis/web/ui/DynamicIcon";
 
 type SettableButtonProps = Pick<
     ButtonProps,
-    "buttonStyle" | "color" | "emphasis" | "href" | "size" | "variant"
+    "buttonStyle" | "color" | "emphasis" | "href" | "variant"
 >;
+type OverrideProps = Pick<ButtonProps, "size">;
 
 interface ButtonElementProps extends FormElementProps<ButtonProps["value"]>, SettableButtonProps {
     endIcon?: DynamicIconProps["src"];
@@ -23,19 +24,9 @@ interface ButtonElementProps extends FormElementProps<ButtonProps["value"]>, Set
  * @param props The props that will be provided by the Workflow runtime.
  */
 function ButtonElement(props: ButtonElementProps): React.ReactElement {
-    const {
-        color,
-        enabled,
-        endIcon,
-        href,
-        raiseEvent,
-        size,
-        startIcon,
-        text,
-        value,
-        variant,
-        tooltip,
-    } = props;
+    const { color, enabled, endIcon, href, raiseEvent, startIcon, text, value, variant, tooltip } =
+        props;
+    const { size } = props as OverrideProps;
 
     const handleClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
         raiseEvent("clicked" as any, value);

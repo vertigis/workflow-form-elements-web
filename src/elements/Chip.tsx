@@ -1,10 +1,10 @@
 import * as React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import Chip, { ChipProps } from "@vertigis/web/ui/Chip";
 
 type SettableChipProps = Pick<ChipProps, "color" | "size" | "variant">;
 
-interface ChipElementProps extends FormElementProps, SettableChipProps {
+interface ChipElementProps extends Omit<FormElementProps, "size">, SettableChipProps {
     text: string;
     tooltip?: string;
 }

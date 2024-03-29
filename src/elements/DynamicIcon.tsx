@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import DynamicIcon, { DynamicIconProps } from "@vertigis/web/ui/DynamicIcon";
 
 type SettableDynamicIconProps = Pick<DynamicIconProps, "alt" | "color" | "fontSize" | "src">;
