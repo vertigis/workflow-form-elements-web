@@ -1,5 +1,5 @@
 import React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import LinearProgress, { LinearProgressProps } from "@vertigis/web/ui/LinearProgress";
 import Box, { BoxProps } from "@vertigis/web/ui/Box";
 

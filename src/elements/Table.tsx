@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import Box, { BoxProps } from "@vertigis/web/ui/Box";
 import Checkbox from "@vertigis/web/ui/Checkbox";
 import Table, { TableProps } from "@vertigis/web/ui/Table";
@@ -18,7 +18,8 @@ interface Column {
 type RowData = Record<string, any>;
 
 type SettableBoxProps = Pick<BoxProps, "maxHeight" | "maxWidth">;
-type SettableTableProps = Pick<TableProps, "size" | "stickyHeader">;
+type SettableTableProps = Pick<TableProps, "stickyHeader">;
+type OverrideProps = Pick<TableProps, "size">;
 
 interface TableElementProps
     extends FormElementProps<RowData[]>,
@@ -50,11 +51,11 @@ function TableElement(props: TableElementProps): React.ReactElement | null {
         raiseEvent,
         rows,
         setValue,
-        size,
         selectable,
         stickyHeader,
         value,
     } = props;
+    const { size } = props as OverrideProps;
 
     const handleSelectAllClick = (event: React.ChangeEvent, checked: boolean) => {
         setValue(checked ? [...rows] : []);

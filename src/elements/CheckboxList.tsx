@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import List, { ListProps } from "@vertigis/web/ui/List";
 import ListItem from "@vertigis/web/ui/ListItem";
 import ListItemButton from "@vertigis/web/ui/ListItemButton";
@@ -23,6 +23,10 @@ type SettableBoxProps = Pick<BoxProps, "maxHeight" | "maxWidth">;
 
 type SettableListProps = Pick<ListProps, "dense" | "subheader">;
 
+interface OverrideProps {
+    items: ListElementItem[];
+}
+
 interface ListElementItem {
     icon?: string;
     divider?: boolean;
@@ -37,7 +41,6 @@ interface CheckboxListElementProps
         SettableBoxProps,
         SettableListProps {
     enableDelete?: boolean;
-    items: ListElementItem[];
     onClick?: (item: ListElementItem) => void;
     onDelete?: (item: ListElementItem) => void;
     onMouseEnter?: (item: ListElementItem) => void;
@@ -55,7 +58,6 @@ function CheckboxListElement(props: CheckboxListElementProps): React.ReactElemen
     const {
         enableDelete,
         dense,
-        items = [],
         maxHeight,
         maxWidth,
         onClick,
@@ -68,8 +70,9 @@ function CheckboxListElement(props: CheckboxListElementProps): React.ReactElemen
         subheader,
         value,
     } = props;
+    const { items = [] } = props as unknown as OverrideProps;
 
-    const handleItemClick = (event: React.MouseEvent<HTMLElement>, item: any) => {
+    const handleItemClick = (item: ListElementItem) => {
         if (value.includes(item)) {
             setValue(value.filter((x) => x !== item));
         } else {
@@ -79,10 +82,10 @@ function CheckboxListElement(props: CheckboxListElementProps): React.ReactElemen
         onClick?.(item);
     };
 
-    const handleDeleteClick = (event: React.MouseEvent<HTMLButtonElement>, item: any) => {
+    const handleDeleteClick = (item: ListElementItem) => {
         setProperty(
-            "items",
-            items.filter((x) => x !== item)
+            "items" as any,
+            items.filter((x) => x !== item),
         );
         if (value.includes(item)) {
             setValue(value.filter((x) => x !== item));
@@ -91,16 +94,16 @@ function CheckboxListElement(props: CheckboxListElementProps): React.ReactElemen
         onDelete?.(item);
     };
 
-    const handleSecondaryActionClick = (event: React.MouseEvent<HTMLButtonElement>, item: any) => {
+    const handleSecondaryActionClick = (item: ListElementItem) => {
         raiseEvent("custom", { eventType: "secondaryAction", item });
     };
 
-    const handleMouseEnter = (event: React.MouseEvent<HTMLLIElement>, item: any) => {
+    const handleMouseEnter = (item: ListElementItem) => {
         raiseEvent("custom", { eventType: "mouseEnter", item });
         onMouseEnter?.(item);
     };
 
-    const handleMouseLeave = (event: React.MouseEvent<HTMLLIElement>, item: any) => {
+    const handleMouseLeave = (item: ListElementItem) => {
         raiseEvent("custom", { eventType: "mouseLeave", item });
         onMouseLeave?.(item);
     };
@@ -136,14 +139,14 @@ function CheckboxListElement(props: CheckboxListElementProps): React.ReactElemen
                         disablePadding
                         divider={item.divider}
                         key={index}
-                        onMouseEnter={(event) => handleMouseEnter(event, item)}
-                        onMouseLeave={(event) => handleMouseLeave(event, item)}
+                        onMouseEnter={() => handleMouseEnter(item)}
+                        onMouseLeave={() => handleMouseLeave(item)}
                         secondaryAction={
                             <>
                                 {item.secondaryIcon && (
                                     <IconButton
                                         disabled={item.disabled}
-                                        onClick={(event) => handleSecondaryActionClick(event, item)}
+                                        onClick={() => handleSecondaryActionClick(item)}
                                         sx={{
                                             ...IconButtonStyleOverrides,
                                         }}
@@ -154,7 +157,7 @@ function CheckboxListElement(props: CheckboxListElementProps): React.ReactElemen
                                 {enableDelete && (
                                     <IconButton
                                         disabled={item.disabled}
-                                        onClick={(event) => handleDeleteClick(event, item)}
+                                        onClick={() => handleDeleteClick(item)}
                                         sx={{
                                             ...IconButtonStyleOverrides,
                                         }}
@@ -167,7 +170,7 @@ function CheckboxListElement(props: CheckboxListElementProps): React.ReactElemen
                     >
                         <ListItemButton
                             disabled={item.disabled}
-                            onClick={(event) => handleItemClick(event, item)}
+                            onClick={() => handleItemClick(item)}
                             selected={value.includes(item)}
                         >
                             <ListItemIcon>
@@ -195,7 +198,7 @@ function CheckboxListElement(props: CheckboxListElementProps): React.ReactElemen
 const ListElementRegistration: FormElementRegistration<CheckboxListElementProps> = {
     component: CheckboxListElement,
     getInitialProperties: () => ({
-        items: [],
+        items: [] as any,
         value: [],
     }),
     id: "CheckboxList",

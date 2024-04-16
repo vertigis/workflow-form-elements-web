@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import Avatar, { AvatarProps } from "@vertigis/web/ui/Avatar";
 
 type SettableAvatarProps = Pick<AvatarProps, "alt" | "color" | "src" | "variant">;

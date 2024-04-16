@@ -32,7 +32,7 @@ The following React components/form elements are supported:
 
 ### VertiGIS Studio Versions
 
-These form elements are designed to work with VertiGIS Studio Web versions `5.18` and above.
+These form elements are designed to work with VertiGIS Studio Web versions `5.28` and above.
 
 ## Usage
 To use the Utility Network activities in [VertiGIS Studio Workflow Designer](https://apps.vertigisstudio.com/workflow/designer/) you need to register an activity pack and then add the activities to a workflow.
@@ -46,8 +46,9 @@ To use the Utility Network activities in [VertiGIS Studio Workflow Designer](htt
     - Purpose: `Ready To Use`
     - API: `JavaScript`
     - URL: The URL to this activity pack manifest
-        - Use https://unpkg.com/@vertigis/workflow-form-elements-web/activitypack.json for the latest version
         - Use https://unpkg.com/@vertigis/workflow-form-elements-web@1.0.0/activitypack.json for a specific version
+        - Use https://unpkg.com/@vertigis/workflow-form-elements-web@1/activitypack.json for the latest revision of a specific major version
+        - Use https://unpkg.com/@vertigis/workflow-form-elements-web/activitypack.json for the latest version (not recommended for production use)
         - Use https://localhost:5000/activitypack.json for a local development version
     - Title: Your desired title
     - Tags: Must include `geocortex-workflow-activity-pack`

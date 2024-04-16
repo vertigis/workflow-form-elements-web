@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import Link, { LinkProps } from "@vertigis/web/ui/Link";
 
 type SettableLinkProps = Pick<

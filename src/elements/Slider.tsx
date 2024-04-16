@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import Box, { BoxProps } from "@vertigis/web/ui/Box";
 import Slider, { SliderProps } from "@vertigis/web/ui/Slider";
 
@@ -11,12 +11,12 @@ type SettableSliderProps = Pick<
     | "max"
     | "min"
     | "orientation"
-    | "size"
     | "step"
     | "track"
     | "valueLabelDisplay"
     | "valueLabelFormat"
 >;
+type OverrideProps = Pick<SliderProps, "size">;
 
 interface SliderElementProps
     extends FormElementProps<number | number[]>,
@@ -41,7 +41,6 @@ function SliderElement(props: SliderElementProps): React.ReactElement {
         min,
         orientation,
         setValue,
-        size,
         step,
         tooltip,
         track,
@@ -49,6 +48,7 @@ function SliderElement(props: SliderElementProps): React.ReactElement {
         valueLabelDisplay,
         valueLabelFormat,
     } = props;
+    const { size } = props as OverrideProps;
 
     const handleChange = (event: Event, value: number | number[]) => {
         setValue(value);

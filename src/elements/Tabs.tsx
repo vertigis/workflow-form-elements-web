@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import DynamicIcon from "@vertigis/web/ui/DynamicIcon";
 import Tab, { TabProps } from "@vertigis/web/ui/Tab";
 import Tabs, { TabsProps } from "@vertigis/web/ui/Tabs";
@@ -15,9 +15,7 @@ interface TabItem extends SettableTabProps {
     icon?: string;
 }
 
-interface TabsElementProps
-    extends FormElementProps<SettableTabProps | undefined>,
-        SettableTabsProps {
+interface TabsElementProps extends FormElementProps<any>, SettableTabsProps {
     tabs: TabItem[];
 }
 

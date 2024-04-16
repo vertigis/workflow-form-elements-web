@@ -1,11 +1,12 @@
 import * as React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import FormControl from "@vertigis/web/ui/FormControl";
 import FormControlLabel, { FormControlLabelProps } from "@vertigis/web/ui/FormControlLabel";
 import Switch, { SwitchProps } from "@vertigis/web/ui/Switch";
 
-type SettableSwitchProps = Pick<SwitchProps, "color" | "checked" | "size">;
-type SettableFormControlLabelProps = Pick<FormControlLabelProps, "label" | "labelPlacement">;
+type SettableSwitchProps = Pick<SwitchProps, "color" | "checked">;
+type SettableFormControlLabelProps = Pick<FormControlLabelProps, "labelPlacement">;
+type OverrideProps = Pick<SwitchProps, "size"> & Pick<FormControlLabelProps, "label">;
 
 interface SwitchElementProps
     extends FormElementProps<unknown>,
@@ -22,18 +23,9 @@ interface SwitchElementProps
  * @param props The props that will be provided by the Workflow runtime.
  */
 function SwitchElement(props: SwitchElementProps): React.ReactElement {
-    const {
-        checked,
-        color,
-        enabled,
-        label,
-        labelPlacement,
-        raiseEvent,
-        setProperty,
-        size,
-        tooltip,
-        value,
-    } = props;
+    const { checked, color, enabled, labelPlacement, raiseEvent, setProperty, tooltip, value } =
+        props;
+    const { size, label } = props as OverrideProps;
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
         setProperty("checked", checked);

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import IconButton, { IconButtonProps } from "@vertigis/web/ui/IconButton";
 import DynamicIcon, { DynamicIconProps } from "@vertigis/web/ui/DynamicIcon";
 
@@ -8,7 +8,7 @@ type SettableDynamicIconProps = Pick<DynamicIconProps, "src">;
 type SettableIconButtonProps = Pick<IconButtonProps, "color" | "size">;
 
 interface IconButtonElementProps
-    extends FormElementProps<IconButtonProps["value"]>,
+    extends Omit<FormElementProps<IconButtonProps["value"]>, "size">,
         SettableDynamicIconProps,
         SettableIconButtonProps {
     tooltip?: string;

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FormElementProps, FormElementRegistration } from "@geocortex/workflow/runtime";
+import type { FormElementProps, FormElementRegistration } from "@vertigis/workflow";
 import Pagination, { PaginationProps } from "@vertigis/web/ui/Pagination";
 
 type SettablePaginationProps = Pick<
@@ -14,9 +14,9 @@ type SettablePaginationProps = Pick<
     | "showFirstButton"
     | "showLastButton"
     | "siblingCount"
-    | "size"
     | "variant"
 >;
+type OverrideProps = Pick<PaginationProps, "size">;
 
 interface PaginationElementProps extends FormElementProps, SettablePaginationProps {}
 
@@ -42,12 +42,12 @@ function PaginationElement(props: PaginationElementProps): React.ReactElement {
         showFirstButton,
         showLastButton,
         siblingCount,
-        size,
         variant,
     } = props;
+    const { size } = props as OverrideProps;
 
     const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
-        setProperty("page", value);
+        setProperty("page" as any, value);
         raiseEvent("changed" as any, value);
     };
 
